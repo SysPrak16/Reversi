@@ -11,15 +11,12 @@ int performConnection(int socket_fd)
 	bzero(buffer,2048);
 	//buffer leeren
    	n = read(socket_fd, buffer, 100);
-   
+	//hier noch Fehler, da nicht bist FileEnde gewartet wird.
    	if (n < 0) {
       		perror("ERROR reading from socket");
       		return(-1);
    	}
 	printf("%s\n",buffer);	
-	
-	//buffer leeren
-
 
 
 	return 0;
