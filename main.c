@@ -43,8 +43,6 @@ int connectToServer()
 	if (connect(sock,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
   		perror("ERROR connecting");}
 
-
-
 	performConnection(sock);
 	return 0;
 }
