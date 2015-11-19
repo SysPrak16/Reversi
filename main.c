@@ -7,7 +7,7 @@
 #include <netdb.h> 
 #include <netinet/in.h>
 
-#include "performConnection.h"
+#include "./lib/performConnection.h"
 
 #define GAMEKINDNAME "Reversi"
 #define PORTNUMBER 1357
