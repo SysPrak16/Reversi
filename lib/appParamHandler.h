@@ -9,6 +9,6 @@
  * which can be called from within the project.
 */
 
-int checkParam(int argc,int argv);
+char* checkParam(int argc, char *argv[]);
 
 #endif // PERFORMCONNECTION_H
