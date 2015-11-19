@@ -2,6 +2,8 @@
 // Created by Philipp on 19.11.15.
 //
 
+#include <stdlib.h>
+
 #define errorString "\0"
 /* @param: int argc, char *argv[]: Kommandozeilenparrameter aus main()
  * @ret: -1 bei Fehler (non valid Input numer) wrongParamError

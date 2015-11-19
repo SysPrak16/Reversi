@@ -5,8 +5,15 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
+#include <stdlib.h>
+#include <strings.h>
 #include "prologue.h"
 #include "performConnection.h"
+
+#define GAMEKINDNAME "Reversi"
+#define PORTNUMBER 1357
+#define HOSTNAME "sysprak.priv.lab.nm.ifi.lmu.de"
 
 int connectToServer(int portnumber, char hostname)
 {

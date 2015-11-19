@@ -10,7 +10,7 @@ int performConnection(int socket_fd)
 	int n;
 	//n is the return value for the read() and write() calls; i.e. it contains the number of characters read or written.
 	
-	// ToD: Schleife fuer aufeinanderfolgendes Empfangen und Senden
+	// ToDo: Schleife fuer aufeinanderfolgendes Empfangen und Senden
 	bzero(buffer,2048);
 	//buffer leeren
    	n = read(socket_fd, buffer, 100);
