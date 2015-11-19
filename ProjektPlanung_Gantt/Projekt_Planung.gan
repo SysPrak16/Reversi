@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><project name="Reversi - Game" company="Gruppe 16" webLink="" view-date="2015-11-09" view-index="0" gantt-divider-location="353" resource-divider-location="300" version="2.7.1" locale="de">
     <description/>
     <view zooming-state="default:5" id="gantt-chart">
-        <field id="tpd3" name="Vorgang" width="68" order="0"/>
-        <field id="tpd4" name="Anfang" width="10" order="1"/>
+        <field id="tpd3" name="Vorgang" width="62" order="0"/>
+        <field id="tpd4" name="Anfang" width="15" order="1"/>
         <field id="tpd5" name="Ende" width="21" order="2"/>
         <timeline><![CDATA[132,130]]></timeline>
         <option id="color.recent"><![CDATA[#ff0000]]></option>
@@ -39,7 +39,6 @@
         <task id="130" name="RELEASE" color="#ff0000" meeting="true" start="2016-01-12" duration="0" complete="0" expand="true"/>
         <task id="149" name="Planning" color="#000000" meeting="false" start="2015-11-12" duration="4" complete="0" expand="true">
             <task id="150" name="Planning &amp; Models" color="#8cb6ce" meeting="false" start="2015-11-12" duration="3" complete="0" expand="true">
-                <notes><![CDATA[Detailierte Planung, Modellierung und Aufgabenverteilung]]></notes>
                 <depend id="153" type="2" difference="1" hardness="Strong"/>
             </task>
             <task id="153" name="Planning Finished" color="#8cb6ce" meeting="true" start="2015-11-16" duration="0" complete="0" expand="true">
@@ -49,15 +48,9 @@
         <task id="82" name="Milestone 1 - Blatt 1" meeting="false" start="2015-11-17" duration="5" complete="0" expand="true">
             <task id="83" name="Blatt 1 - Prolog" color="#8cb6ce" meeting="false" start="2015-11-17" duration="4" complete="0" expand="true">
                 <depend id="98" type="2" difference="1" hardness="Strong"/>
-                <task id="143" name="Server Communication Library" color="#8cb6ce" meeting="false" start="2015-11-17" duration="4" complete="0" expand="true">
-                    <notes><![CDATA[Erstellen einer unabhängigen Bibliothek, die die Funktionen für die Serverkomunikation bereit stellt]]></notes>
-                </task>
-                <task id="144" name="File IO Library" color="#8cb6ce" meeting="false" start="2015-11-17" duration="4" complete="0" expand="true">
-                    <notes><![CDATA[Erstellen einer unabhängigen Bibliothek, die die Funktionen für das ein- und auslesen von Dateien bereit stellt.]]></notes>
-                </task>
-                <task id="147" name="Error Library" color="#8cb6ce" meeting="false" start="2015-11-17" duration="4" complete="0" expand="true">
-                    <notes><![CDATA[Erstellen einer unabhängigen Bibliothek, die die Funktionen für Fehlermeldungen und -behandlungen bereit stellt.]]></notes>
-                </task>
+                <task id="143" name="Server Communication Library" meeting="false" start="2015-11-17" duration="4" complete="0" expand="true"/>
+                <task id="144" name="File IO Library" meeting="false" start="2015-11-17" duration="4" complete="0" expand="true"/>
+                <task id="147" name="Error Library" meeting="false" start="2015-11-17" duration="4" complete="0" expand="true"/>
             </task>
             <task id="98" name="Blatt 1 Complete" color="#8cb6ce" meeting="true" start="2015-11-22" duration="0" complete="0" expand="true">
                 <depend id="100" type="2" difference="1" hardness="Strong"/>
@@ -65,53 +58,31 @@
             </task>
         </task>
         <task id="99" name="Milestone 2 - Blatt 2 &amp; 3" meeting="false" start="2015-11-23" duration="27" complete="0" expand="true">
-            <task id="158" name="Main Executable" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
+            <task id="158" name="Main Executable" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="false">
                 <depend id="103" type="2" difference="0" hardness="Strong"/>
-                <task id="162" name="Parameter Handling" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Ein- und Auslesen von Kommandozeilenparametern.]]></notes>
-                </task>
-                <task id="163" name="Einbinden: File IO - System" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Einbinden des IO-Systems]]></notes>
-                </task>
-                <task id="164" name="Forking, Shared Memory &amp; Process Error Handling" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Aufteilen und Starten der Prozesse.]]></notes>
-                </task>
+                <task id="162" name="Parameter Handling" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
+                <task id="163" name="Einbinden: File IO - System" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
+                <task id="164" name="Forking, Shared Memory &amp; Process Error Handling" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
             </task>
             <task id="100" name="Thinker" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
                 <depend id="103" type="2" difference="0" hardness="Strong"/>
-                <task id="170" name="SharedMem Handling - T" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Einrichten des Shared Memory Handlings des Thinkers.]]></notes>
-                </task>
-                <task id="177" name="Gameplay Mechanics" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Erstellen der Regeln und basischen Mechaniken.]]></notes>
-                </task>
+                <task id="170" name="SharedMem Handling - T" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
+                <task id="177" name="Gameplay Mechanics" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
             </task>
             <task id="108" name="Connector" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
                 <depend id="103" type="2" difference="0" hardness="Strong"/>
-                <task id="171" name="SharedMem Handling - C" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Einrichten des Shared Memory Handlings des Connectors.]]></notes>
-                </task>
-                <task id="178" name="Board IO" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Übermittlung des Boards an den Spieler und den Server.]]></notes>
-                </task>
-                <task id="179" name="Player Input Handling" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Verarbeitung des Spieler Inputs.]]></notes>
-                </task>
+                <task id="171" name="SharedMem Handling - C" color="#8cb6ce" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
+                <task id="178" name="Board IO" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
+                <task id="179" name="Player Input Handling" meeting="false" start="2015-11-23" duration="13" complete="0" expand="true"/>
             </task>
             <task id="103" name="Merge Thinker Connector" color="#8cb6ce" meeting="true" start="2015-12-06" duration="0" complete="0" expand="true">
                 <depend id="111" type="2" difference="1" hardness="Strong"/>
             </task>
             <task id="111" name="Merge + Testing" color="#8cb6ce" meeting="false" start="2015-12-07" duration="13" complete="0" expand="true">
                 <depend id="114" type="2" difference="0" hardness="Strong"/>
-                <task id="184" name="Test Writing &amp; Execution" color="#8cb6ce" meeting="false" start="2015-12-07" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Erstellen von Tests für die Sicherstellung der korrekten Integration.]]></notes>
-                </task>
-                <task id="185" name="IO Refining" color="#8cb6ce" meeting="false" start="2015-12-07" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Verbesserungen am IO System, Abhängig von den Testergebnissen.]]></notes>
-                </task>
-                <task id="186" name="Communication Refining" color="#8cb6ce" meeting="false" start="2015-12-07" duration="13" complete="0" expand="true">
-                    <notes><![CDATA[Verbesserungen am Server-Kommunikationssystem, Abhängig von den Testergebnissen.]]></notes>
-                </task>
+                <task id="184" name="Test Writing &amp; Execution" meeting="false" start="2015-12-07" duration="13" complete="0" expand="true"/>
+                <task id="185" name="IO Refining" color="#8cb6ce" meeting="false" start="2015-12-07" duration="13" complete="0" expand="true"/>
+                <task id="186" name="Communication Refining" meeting="false" start="2015-12-07" duration="13" complete="0" expand="true"/>
             </task>
             <task id="114" name="Merge Test Complete" color="#8cb6ce" meeting="true" start="2015-12-20" duration="0" complete="0" expand="true">
                 <depend id="74" type="2" difference="7" hardness="Strong"/>
@@ -119,25 +90,17 @@
         </task>
         <task id="74" name="Bugfixing" color="#8cb6ce" meeting="false" start="2015-12-27" duration="14" complete="0" expand="true">
             <depend id="132" type="2" difference="1" hardness="Strong"/>
-            <task id="80" name="Game Mechanics Bugfixing" color="#8cb6ce" meeting="false" start="2015-12-27" duration="14" complete="0" expand="true">
-                <notes><![CDATA[Bugfixing: Mechaniken]]></notes>
-            </task>
-            <task id="81" name="AI Bugfixing" color="#8cb6ce" meeting="false" start="2016-01-03" duration="7" complete="0" expand="true">
-                <notes><![CDATA[Bugfixing der Testing AI]]></notes>
-            </task>
+            <task id="80" name="Game Mechanics Bugfixing" color="#8cb6ce" meeting="false" start="2015-12-27" duration="14" complete="0" expand="true"/>
+            <task id="81" name="AI Bugfixing" color="#8cb6ce" meeting="false" start="2016-01-03" duration="7" complete="0" expand="true"/>
         </task>
         <task id="115" name="Milestone 3 - Blatt 4" meeting="false" start="2015-12-27" duration="14" complete="0" expand="true">
             <depend id="132" type="2" difference="1" hardness="Strong"/>
             <task id="127" name="Testing AI" color="#8cb6ce" meeting="false" start="2015-12-27" duration="6" complete="0" expand="true">
-                <notes><![CDATA[Erstellen einer basischen Test AI]]></notes>
                 <depend id="81" type="2" difference="1" hardness="Strong"/>
             </task>
-            <task id="128" name="Refined AI" color="#8cb6ce" meeting="false" start="2016-01-03" duration="7" complete="0" expand="true">
-                <notes><![CDATA[Verfeinerung der Test AI mit besseren Zugmechaniken.]]></notes>
-            </task>
+            <task id="128" name="Refined AI" color="#8cb6ce" meeting="false" start="2016-01-03" duration="7" complete="0" expand="true"/>
         </task>
         <task id="132" name="Milestone 4 - Production Pull" color="#ff0000" meeting="true" start="2016-01-11" duration="0" complete="0" expand="true">
-            <notes><![CDATA[Production.]]></notes>
             <depend id="130" type="2" difference="1" hardness="Strong"/>
         </task>
     </tasks>
@@ -157,8 +120,8 @@
     <taskdisplaycolumns>
         <displaycolumn property-id="tpd1" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd0" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd3" order="0" width="238" visible="true"/>
-        <displaycolumn property-id="tpd4" order="1" width="36" visible="true"/>
+        <displaycolumn property-id="tpd3" order="0" width="219" visible="true"/>
+        <displaycolumn property-id="tpd4" order="1" width="55" visible="true"/>
         <displaycolumn property-id="tpd6" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd5" order="2" width="75" visible="true"/>
         <displaycolumn property-id="tpd7" order="-1" width="75" visible="false"/>
