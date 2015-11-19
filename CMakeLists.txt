@@ -4,6 +4,7 @@ project(Reversi)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
+    lib/appParamHandler.c
     lib/appParamHandler.h
     lib/errorHandler.h
     lib/fileIOHandler.h
