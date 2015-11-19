@@ -18,7 +18,9 @@
 
 int main( int argc, char* argv[] )
 {
-    checkParam(argc,argv);
-	connectToServer(PORTNUMBER, HOSTNAME);
+	char *gameID;
+	gameID = checkParam(argc,argv);
+	printf("Your Game-ID: %s\n",gameID);
+	connectToServer(PORTNUMBER, HOSTNAME); //TODO: PORTNUMMER und HOSTNAME momentan überflüssig, da in prologue.c definiert
 	return 0;
 }
