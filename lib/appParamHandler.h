@@ -9,4 +9,19 @@
  * which can be called from within the project.
 */
 
-#endif // PERFORMCONNECTION_H
+/*
+ * Reads the specified argument and returns them accordingly.
+ */
+char* getParam(int argc, char *argv[]);
+
+/*
+ * Checks, whether arguments are valid
+ */
+char* checkParam(int argc, char *argv[]);
+
+/*
+ * reads game ID and determines whether it actually IS a game ID.
+ */
+char* readGameID(char *argv[]);
+
+#endif
