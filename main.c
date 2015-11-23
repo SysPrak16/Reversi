@@ -24,15 +24,12 @@ int main( int argc, char* argv[] )
 {
 	char *gameID;
 	char *configFile;
-    char *tempID;
+    //char *tempID;
 	int ret;
-	/*while ((ret=getopt(argc, argv, "g:c")) != -1) {
+	while ((ret=getopt(argc, argv, "g:c")) != -1) {
 		switch (ret) {
 			case 'g':
-				//TODO: gameID lesen
-                tempID=malloc(11*sizeof(char));
-                tempID=optarg;
-				gameID=readGameID(tempID);
+                gameID=readGameID(optarg);
 				break;
 			case 'c':
 				//ToDO: configurationsfile lesen
@@ -41,8 +38,8 @@ int main( int argc, char* argv[] )
 				//TODO: Fehler
 				break;
 		}
-	}*/
-	gameID = checkParam(argc,argv);
+	}
+	//gameID = checkParam(argc,argv);
 	printf("Your Game-ID: %s\n",gameID);
 	connectToServer(PORTNUMBER, HOSTNAME); //TODO: PORTNUMMER und HOSTNAME momentan überflüssig, da in prologue.c definiert
 	return 0;
