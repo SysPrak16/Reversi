@@ -20,7 +20,7 @@ int performConnection(int socket_fd)
 		//n = read(socket_fd, buffer, 100);
 		int cancel = 1;// Wird in while Schleife auf 0 gesetzt wenn '\n' empfangen wurde. -> Abbruchbedingung
 
-		while ((n = recv(socket_fd, buffer, 256, 0)) > 0 && cancel) {
+		while (cancel>0 && (n = recv(socket_fd, buffer, 256, 0)) > 0) {
 			// hier noch Fehler, da nicht bist FileEnde gewartet wird.
 			// ToDo: Buffer bis letztes Zeichen lesen
 			if (n < 0) {
