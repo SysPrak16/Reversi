@@ -11,8 +11,9 @@ int performConnection(int socket_fd)
 	char line[256];
 	int n;
 	//n is the return value for the read() and write() calls; i.e. it contains the number of characters read or written.
-	
 	// ToDo: Schleife fuer aufeinanderfolgendes Empfangen und Senden
+	//for (;;)
+	//{
 	bzero(buffer,256);	//buffer leeren
    	//n = read(socket_fd, buffer, 100);
 	int cancel=1;// Wird in while Schleife auf 0 gesetzt wenn '\n' empfangen wurde. -> Abbruchbedingung
@@ -34,5 +35,7 @@ int performConnection(int socket_fd)
 
 	printf("%s\n",line);
 	// ToDo: Fallabfrage mit Anwort
+	// send(socket_fd,buffer,strlen(buffer),0);
+	//}
 	return 0;
 }
