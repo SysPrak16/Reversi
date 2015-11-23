@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <strings.h>
 #include <sys/socket.h>
+#include <string.h>
 
 int performConnection(int socket_fd)
 {
@@ -14,11 +15,11 @@ int performConnection(int socket_fd)
 	
 	// ToDo: Schleife fuer aufeinanderfolgendes Empfangen und Senden
 	bzero(buffer,256);	//buffer leeren
+	bzero(line,256);	//buffer leeren
    	//n = read(socket_fd, buffer, 100);
 	int cancel=1;// Wird in while Schleife auf 0 gesetzt wenn '\n' empfangen wurde. -> Abbruchbedingung
 
 	while((n = recv(socket_fd, buffer, 256, 0))>0&&cancel){
-
 		// hier noch Fehler, da nicht bist FileEnde gewartet wird.
 		// ToDo: Buffer bis letztes Zeichen lesen
 		if (n < 0) {

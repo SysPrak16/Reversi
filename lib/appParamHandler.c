@@ -63,3 +63,38 @@ char* checkParam(int argc, char *argv[]){
         return GameID;
     }
 }
+
+char* readGameID(char *argv[]){
+    char *GameID;
+    GameID = malloc(11 * sizeof(char));
+    int count = 0;
+    while(count<11){
+        if(argv[1][count]=='\0'){
+            printf("Die von ihnen angegebene Game-ID hat nur %d Stellen! ",count);
+            char buf[256];
+            do{
+                printf("Bitte geben sie die 11 stellige Game-ID an: ");
+                scanf("%s",buf);
+            }
+            while(strlen(buf)!=11);
+            strncpy(GameID,buf,11);
+            return GameID;
+            //return readGameID(count);
+            //return errorString; //wrongParamError
+        }
+        GameID[count]=argv[1][count];
+        count++;
+    }
+    if(argv[1][count]!='\0'){
+        printf("Die von ihnen angegebene Game-ID ist zu lang! ");
+        char buf[256];
+        do{
+            printf("Bitte geben sie die 11 stellige Game-ID an:");
+            scanf("%s",buf);
+        }
+        while(strlen(buf)!=11);
+        strncpy(GameID,buf,11);
+        return GameID;
+    }
+    return GameID;
+}
