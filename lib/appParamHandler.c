@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "global.h"
+
 
 #define errorString "\0"
 /* @param: int argc, char *argv[]: Kommandozeilenparrameter aus main()
@@ -97,4 +99,8 @@ char* readGameID(char *argv){
         return GameID;
     }
     return GameID;
+}
+
+config* readConfig(char *argv){
+    //ToDo: read-write filehandler
 }

@@ -11,6 +11,6 @@ set(SOURCE_FILES
         main.c
         lib/performConnection.c
         lib/performConnection.h
-        README.md lib/prologue.c lib/prologue.h lib/appParamHandler.c)
+        README.md lib/prologue.c lib/prologue.h lib/appParamHandler.c lib/global.h)
 
 add_executable(Reversi ${SOURCE_FILES})

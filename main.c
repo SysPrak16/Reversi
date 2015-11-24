@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include "lib/prologue.h"
 #include "lib/appParamHandler.h"
+#include "lib/global.h"
 /*#include <stdlib.h>
 *#include <unistd.h>
 *#include <string.h>
@@ -15,9 +16,6 @@
 *#include "./lib/performConnection.h"
 */
 
-#define GAMEKINDNAME "Reversi"
-#define PORTNUMBER 1357
-#define HOSTNAME "sysprak.priv.lab.nm.ifi.lmu.de"
 
 
 int main( int argc, char* argv[] )

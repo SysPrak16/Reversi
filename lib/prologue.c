@@ -10,10 +10,8 @@
 #include <strings.h>
 #include "prologue.h"
 #include "performConnection.h"
+#include "global.h"
 
-#define GAMEKINDNAME "Reversi"
-#define PORTNUMBER 1357
-#define HOSTNAME "sysprak.priv.lab.nm.ifi.lmu.de"
 
 int connectToServer(int portnumber, char hostname)
 {
