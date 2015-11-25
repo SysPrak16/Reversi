@@ -1,4 +1,5 @@
 #include "performConnection.h"
+#include "global.h"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -6,41 +7,61 @@
 #include <sys/socket.h>
 #include <string.h>
 
+
 int performConnection(int socket_fd)
 {
-	char buffer[256];
-	char line[256];
-	int n,i;
-	//n is the return value for the read() and write() calls; i.e. it contains the number of characters read or written.
-	
-	// ToDo: Schleife fuer aufeinanderfolgendes Empfangen und Senden
-	//for(i = 0;i<5;i++) {
-		bzero(buffer, 256);    //buffer leeren
-		bzero(line, 256);    //buffer leeren
-		//n = read(socket_fd, buffer, 100);
-		int cancel = 1;// Wird in while Schleife auf 0 gesetzt wenn '\n' empfangen wurde. -> Abbruchbedingung
+    /*
+     * Re-Written Method from scratch: simple connect, sending one message, receiving the answer
+     */
+    char buffer[BUF_SIZE];
+    char line[BUF_SIZE];
+    int n,i,cancel, doneonce;
+    bzero(buffer, BUF_SIZE);
+    bzero(line, BUF_SIZE);
+    //cancel=1;
+    doneonce=1;
+    //TODO: Actual question and answer game!
+    for(i=0;i<2;i++){
+        cancel=1;
+        //TODO: For some reason the second answer is not received completely every time.
+        while(cancel>0 && (n = recv(socket_fd, buffer, 256, 0)) > 0){
+            //printf("Entered While%s\n");
+            if (n<0){
+                perror("ERROR reading from socket");
+                return -1;
+            }
+            if (buffer[n - 1] == '\n') {
+                cancel = 0;
+            }
+            strcat(line, buffer);
 
-		while (cancel>0 && (n = recv(socket_fd, buffer, 256, 0)) > 0) {
-			// hier noch Fehler, da nicht bist FileEnde gewartet wird.
-			// ToDo: Buffer bis letztes Zeichen lesen
-			if (n < 0) {
-				perror("ERROR reading from socket");
-				return (-1);
-			}
-			if (buffer[n - 1] == '\n') {
-				cancel = 0;
-			}
-			strcat(line, buffer);
-			bzero(buffer, 256);
-		}
-
-		printf("LINE: %s\n", line);
-        printf("BUFFER: %s\n",buffer);
-		// ToDo: Fallabfrage mit Anwort
-        //bzero(buffer, 256);
-        buffer[0]='a';
-        send(socket_fd, buffer, strlen(buffer),0);
-        //printf("Was bist du? %s\n", buffer);
-	//}
-	return 0;
+            //printf("BUFFER: %s\n",buffer);
+        }
+        printf("SERVER: %s\n", line);
+        /*
+         * TODO: Actual loop
+         * First connection performed, now for the send:
+         * Trying to answer:
+        */
+        bzero(buffer, BUF_SIZE);
+        bzero(line, BUF_SIZE);
+        if (doneonce>0) {
+            doneonce=0;
+            buffer[0]='V';
+            buffer[1]='E';
+            buffer[2]='R';
+            buffer[3]='S';
+            buffer[4]='I';
+            buffer[5]='O';
+            buffer[6]='N';
+            buffer[7]=' ';
+            buffer[8]='1';
+            buffer[9]='.';
+            buffer[10]='0';
+            buffer[11]='\n';
+            printf("Client: %s\n", buffer);
+            send(socket_fd, buffer, BUF_SIZE,0);
+        }
+    }
+    return 0;
 }

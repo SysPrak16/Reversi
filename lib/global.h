@@ -4,6 +4,7 @@
 
 #ifndef REVERSI_GLOBAL_H
 #define REVERSI_GLOBAL_H
+#define BUF_SIZE 256
 
 #define GAMEKINDNAME "Reversi"
 #define PORTNUMBER 1357
