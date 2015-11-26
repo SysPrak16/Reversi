@@ -5,10 +5,12 @@
 #ifndef REVERSI_PROLOGUE_H
 #define REVERSI_PROLOGUE_H
 
+#include "global.h"
+
 /*
  * Creates all necessary stuff to open and establish connection to the server.
  */
-int connectToServer(int portnumber, char hostname);
+int connectToServer(int portnumber, char hostname[BUF_SIZE]);
 //char* readGameID(int err);
 
 #endif //REVERSI_PROLOGUE_H

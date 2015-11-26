@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "global.h"
+
 
 #define errorString "\0"
 /* @param: int argc, char *argv[]: Kommandozeilenparrameter aus main()
@@ -64,12 +66,12 @@ char* checkParam(int argc, char *argv[]){
     }
 }
 
-char* readGameID(char *argv[]){
+char* readGameID(char *argv){
     char *GameID;
     GameID = malloc(11 * sizeof(char));
     int count = 0;
     while(count<11){
-        if(argv[1][count]=='\0'){
+        if(argv[count]=='\0'){
             printf("Die von ihnen angegebene Game-ID hat nur %d Stellen! ",count);
             char buf[256];
             do{
@@ -82,10 +84,10 @@ char* readGameID(char *argv[]){
             //return readGameID(count);
             //return errorString; //wrongParamError
         }
-        GameID[count]=argv[1][count];
+        GameID[count]=argv[count];
         count++;
     }
-    if(argv[1][count]!='\0'){
+    if(argv[count]!='\0'){
         printf("Die von ihnen angegebene Game-ID ist zu lang! ");
         char buf[256];
         do{
