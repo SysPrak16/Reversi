@@ -39,6 +39,6 @@ int main( int argc, char* argv[] )
 	}
 	//gameID = checkParam(argc,argv);
 	printf("Your Game-ID: %s\n",gameID);
-	connectToServer(PORTNUMBER, HOSTNAME); //TODO: PORTNUMMER und HOSTNAME momentan überflüssig, da in prologue.c definiert
+	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
 	return 0;
 }

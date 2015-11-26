@@ -27,6 +27,5 @@ char* checkParam(int argc, char *argv[]);
  */
 char* readGameID(char *argv);
 
-config* readConfig(char *argv);
 
 #endif

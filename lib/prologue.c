@@ -13,7 +13,7 @@
 #include "global.h"
 
 
-int connectToServer(int portnumber, char hostname)
+int connectToServer(int portnumber, char hostname[BUF_SIZE])
 {
     // Socket anlegen
     int sock = socket(PF_INET, SOCK_STREAM, 0);
@@ -25,7 +25,7 @@ int connectToServer(int portnumber, char hostname)
     struct hostent *server;
     //hostent defines a host computer on the Internet
 
-    server = gethostbyname(HOSTNAME);
+    server = gethostbyname(DEF_HOSTNAME);
     if (server == NULL)
     {
         fprintf(stderr,"ERROR, no such host");
@@ -38,7 +38,7 @@ int connectToServer(int portnumber, char hostname)
           server->h_length);
     //
     serv_addr.sin_family = PF_INET;
-    serv_addr.sin_port = htons(PORTNUMBER);
+    serv_addr.sin_port = htons(DEF_PORTNUMBER);
     if (connect(sock,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
         perror("ERROR connecting");}
 

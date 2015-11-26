@@ -100,7 +100,3 @@ char* readGameID(char *argv){
     }
     return GameID;
 }
-
-config* readConfig(char *argv){
-    //ToDo: read-write filehandler
-}
