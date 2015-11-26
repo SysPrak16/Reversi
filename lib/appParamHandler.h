@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "global.h"
+
+
 
 /*
  * This is a library which exclusively is responsible for console command parameters
@@ -22,6 +25,7 @@ char* checkParam(int argc, char *argv[]);
 /*
  * reads game ID and determines whether it actually IS a game ID.
  */
-char* readGameID(char *argv[]);
+char* readGameID(char *argv);
+
 
 #endif
