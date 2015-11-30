@@ -1,11 +1,11 @@
-/* damit getopt() deklariert wird */
-#define _POSIX_C_SOURCE 2
-
 #include <stdio.h>
 #include <getopt.h>
+#include <string.h>
 #include "lib/prologue.h"
 #include "lib/appParamHandler.h"
 #include "lib/global.h"
+#include "lib/fileIOHandler.h"
+
 /*#include <stdlib.h>
 *#include <unistd.h>
 *#include <string.h>
@@ -21,16 +21,28 @@
 int main( int argc, char* argv[] )
 {
 	char *gameID;
-	char *configFile;
+	gameID="ERROR";
+    //gameID=malloc(sizeof(char)*11);
+	const char *configFile, *tmpCfgFile;
+    configFile="client.conf";
     //char *tempID;
 	int ret;
 	while ((ret=getopt(argc, argv, "g:c")) != -1) {
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
+                //gameID=checkParam(argc, argv);
+
 				break;
 			case 'c':
-				//ToDO: configurationsfile lesen
+                tmpCfgFile=optarg;
+                if (readCfg(tmpCfgFile)>0){
+                    configFile=tmpCfgFile;
+                    printf("Config File initialised\n");
+                }
+                else{
+                    printf("Initialising form default.\n");
+                }
 				break;
 			default:
 				//TODO: Fehler

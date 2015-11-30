@@ -32,11 +32,17 @@ int connectToServer(int portnumber, char hostname[BUF_SIZE])
         exit(0);
     }
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    //The function bzero() sets all values in a buffer to zero. It takes two arguments, the first is a pointer to the buffer and the second is the size of the buffer. Thus, this line initializes serv_addr to zeros.
+
+    /*
+     * The function bzero() sets all values in a buffer to zero.
+     * It takes two arguments, the first is a pointer to the buffer and the second is the size of the buffer.
+     * Thus, this line initializes serv_addr to zeros.
+     */
+
     bcopy((char *)server->h_addr,
           (char *)&serv_addr.sin_addr.s_addr,
           server->h_length);
-    //
+
     serv_addr.sin_family = PF_INET;
     serv_addr.sin_port = htons(DEF_PORTNUMBER);
     if (connect(sock,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){

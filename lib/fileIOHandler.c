@@ -10,7 +10,8 @@
 #include <regex.h>
 #include <stdio.h>
 
-
+//global variable
+config_t config;
 
 int readCfg(const char *filename) {
     /*
@@ -21,6 +22,8 @@ int readCfg(const char *filename) {
     if (!cfgFile) {
        return fileNotFoundError();
     }
+
+
 
     /*
      * create regular expression
@@ -72,6 +75,7 @@ int readCfg(const char *filename) {
             key[keyLength] = 0;
             //reading the value from the line:
             int valueLength = compKeyComposition[2].rm_eo - compKeyComposition[2].rm_so;
+            //So why exactly can I strncpy this???
             strncpy(value, &line[compKeyComposition[2].rm_so], valueLength);
             //It matches? Great, let's zero it then!
             value[valueLength] = 0;
@@ -83,18 +87,16 @@ int readCfg(const char *filename) {
              */
             if (strcmp("hostname", key) == 0) {
                 //Do we have a key hostname?
-                //TODO: Fix this BS!!!
-                //strncpy(config.hostname, value, sizeof(config.hostname));
+                strncpy(config.hostname, value, sizeof(config.hostname));
             } else if (strcmp("port", key) == 0){
                 //No, we have a key hostname then?
-                //TODO: Fix this BS!!!
                 //config.port = (unsigned short) atoi(value);
+                config.port = (unsigned short) atoi(value);
             } else if (strcmp("gamename", key) == 0){
-                //TODO: Fix this BS!!!
                 //strncpy(config.gamename, value, sizeof(config.gamename));
+                strncpy(config.gamename, value, sizeof(config.gamename));
             } else {
                 unknownKeyError(key);
-                //fprintf(stderr, "Unbekannter Parameter '%s': Ignoriere\n", key);
             }
         }
     }
