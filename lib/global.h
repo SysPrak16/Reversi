@@ -13,6 +13,9 @@
 #define CTHINK "THINKING\n"
 #define CWAIT "OKWAIT\n"
 #define GID "ID "
+#define PLAYER0 "PLAYER 0\n"
+#define PLAYER1 "PLAYER 1\n"
+#define PLAYER2 "PLAYER 2\n"
 
 /*
  * Struct, which represents the config file types

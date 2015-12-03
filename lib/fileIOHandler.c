@@ -89,11 +89,9 @@ int readCfg(const char *filename) {
                 //Do we have a key hostname?
                 strncpy(config.hostname, value, sizeof(config.hostname));
             } else if (strcmp("port", key) == 0){
-                //No, we have a key hostname then?
-                //config.port = (unsigned short) atoi(value);
+                //No, we have a key portname then?
                 config.port = (unsigned short) atoi(value);
             } else if (strcmp("gamename", key) == 0){
-                //strncpy(config.gamename, value, sizeof(config.gamename));
                 strncpy(config.gamename, value, sizeof(config.gamename));
             } else {
                 unknownKeyError(key);

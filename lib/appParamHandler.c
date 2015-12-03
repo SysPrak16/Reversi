@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "global.h"
 
 
 #define errorString "\0"
@@ -14,18 +13,6 @@
  * @ret:
  *
  * */
-
-char *getIDFromTerminal(){
-    char usrGameID[BUF_SIZE];
-    char inbuf[256];
-    do{
-        printf("Bitte geben sie die 11 stellige Game-ID an:\n");
-        scanf("%s",inbuf);
-    }
-    while(strlen(inbuf)!=11);
-    strncpy(usrGameID,inbuf,11);
-    return usrGameID;
-}
 
 char* checkParam(int argc, char *argv[]){
 
@@ -50,7 +37,6 @@ char* checkParam(int argc, char *argv[]){
             if(argv[1][count]=='\0'){
                 printf("Die von ihnen angegebene Game-ID hat nur %d Stellen! ",count);
                 char buf[256];
-                GameID=getIDFromTerminal();
                 do{
                     printf("Bitte geben sie die 11 stellige Game-ID an: \n");
                     scanf("%s",buf);
@@ -87,15 +73,15 @@ char* readGameID(char *argv){
     while(count<11){
         if(argv[count]=='\0'){
             printf("Die von ihnen angegebene Game-ID hat nur %d Stellen! ",count);
-            GameID=getIDFromTerminal();
-            /*char buf[256];
+            //GameID=getIDFromTerminal();
+            char buf[256];
             do{
                 printf("Bitte geben sie die 11 stellige Game-ID an: ");
                 scanf("%s",buf);
             }
             while(strlen(buf)!=11);
             strncpy(GameID,buf,11);
-            return GameID;*/
+            return GameID;
             //return readGameID(count);
             //return errorString; //wrongParamError
         }
@@ -104,15 +90,15 @@ char* readGameID(char *argv){
     }
     if(argv[count]!='\0'){
         printf("Die von ihnen angegebene Game-ID ist zu lang! ");
-        GameID=getIDFromTerminal();
-        /*char buf[256];
+        //GameID=getIDFromTerminal();
+        char buf[256];
         do{
             printf("Bitte geben sie die 11 stellige Game-ID an:");
             scanf("%s",buf);
         }
         while(strlen(buf)!=11);
         strncpy(GameID,buf,11);
-        return GameID;*/
+        return GameID;
     }
     return GameID;
 }

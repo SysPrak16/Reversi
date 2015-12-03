@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <getopt.h>
-//#include <string.h>
-//#include "lib/prologue.h"
+#include <string.h>
 #include "lib/appParamHandler.h"
-//#include "lib/global.h"
 #include "lib/fileIOHandler.h"
 #include "lib/connector.h"
 
@@ -40,6 +38,15 @@ int main( int argc, char* argv[] )
 				break;
 		}
 	}
+	if (gameID=="ERROR"){
+        printf("ERROR: Sie haben keine GameID angegeben!\n");
+        char buf[256];
+        do{
+            printf("Bitte geben sie die 11 stellige Game-ID an: \n");
+            scanf("%s",buf);
+        }while(strlen(buf)!=11);
+        gameID=buf;
+    }
 	//gameID = checkParam(argc,argv);
 	printf("Your Game-ID: %s\n",gameID);
 	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
