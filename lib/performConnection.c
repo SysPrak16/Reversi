@@ -32,68 +32,86 @@ int performConnection(int socket_fd)
         char sbuf5[]="PLAY F2\n";
         char sbuf6[]="OKWAIT\n";
 
-        if (strbeg(buffer, "-")){
-            printf("Server Connection error\n");
-            return -1;
-        } else if (strbeg(buffer, "+ MNM Gameserver")){
-            if(send(socket_fd , CVERSION , strlen(CVERSION) , 0) < 0)
-            {
-                puts("Send failed");
+        char backbuf[BUF_SIZE];
+        strncpy(backbuf,buffer,BUF_SIZE);
+
+        const char splittingTool[2] = "\n";
+        char *lineBuf;
+
+        //get the first token
+        lineBuf = strtok(backbuf, splittingTool);
+
+        // walk through other tokens
+        while( lineBuf != NULL ) {
+            fprintf(stdout, "SERVER: %s\n", lineBuf);
+            strncpy(buffer, lineBuf, BUF_SIZE);
+
+            if (strbeg(buffer, "-")) {
+                printf("Server Connection error\n");
                 return -1;
-            }else{
-                printf("Client: %.*s", n, CVERSION);
-            }
-            //printf("Client sending Client Version\n");
-        } else if (strbeg(buffer, "+ Client version accepted - please send Game-ID to join")){
-            if(send(socket_fd , sbuf2, strlen(sbuf2) , 0) < 0)
-            {
-                puts("Send failed");
-                return -1;
-            }else{
-                printf("Client: %.*s", n, sbuf2);
-            }
-            //printf("Client sending Game-ID\n");
-        } else if (strbeg(buffer, "+ PLAYING")){
-            // Auslesen von GameKind-Name
-            if(!strbeg(buffer, "+ PLAYING Reversi"))
-            {
-                printf("Falsche Spielart\n");
-                return -1;
-            }else{
-                if (strbeg(buffer, "+ PLAYING Reversi\n+ ")){
-                    // Senden von Spielernummer
-                    if(send(socket_fd , PLAYER1 , strlen(PLAYER1) , 0) < 0)
-                    {
-                        puts("Send failed");
-                        return -1;
-                    }else{
-                        printf("Client: %.*s", n, PLAYER1);
-                    }
+            } else if (strbeg(buffer, "+ MNM Gameserver")) {
+                if (send(socket_fd, CVERSION, strlen(CVERSION), 0) < 0) {
+                    puts("Send failed");
+                    return -1;
                 } else {
-                    n = receiveMessage(socket_fd, buffer, sizeof(buffer));
-                    if(send(socket_fd , PLAYER1 , strlen(PLAYER1) , 0) < 0)
-                    {
-                        puts("Send failed");
-                        return -1;
-                    }else{
-                        printf("Client: %.*s", n, PLAYER1);
+                    printf("Client: %.*s", n, CVERSION);
+                }
+                //printf("Client sending Client Version\n");
+            } else if (strbeg(buffer, "+ Client version accepted - please send Game-ID to join")) {
+                if (send(socket_fd, sbuf2, strlen(sbuf2), 0) < 0) {
+                    puts("Send failed");
+                    return -1;
+                } else {
+                    printf("Client: %.*s", n, sbuf2);
+                }
+                //printf("Client sending Game-ID\n");
+            } else if (strbeg(buffer, "+ PLAYING")) {
+                // Auslesen von GameKind-Name
+                if (!strbeg(buffer, "+ PLAYING Reversi")) {
+                    printf("Falsche Spielart\n");
+                    return -1;
+                } else {
+                    if (strbeg(buffer, "+ PLAYING Reversi")) {
+                        // Senden von Spielernummer
+                        if (send(socket_fd, PLAYER1, strlen(PLAYER1), 0) < 0) {
+                            puts("Send failed");
+                            return -1;
+                        } else {
+                            printf("Client: %.*s", n, PLAYER1);
+                        }
+                    } else {
+                        n = receiveMessage(socket_fd, buffer, sizeof(buffer));
+                        if (send(socket_fd, PLAYER1, strlen(PLAYER1), 0) < 0) {
+                            puts("Send failed");
+                            return -1;
+                        } else {
+                            printf("Client: %.*s", n, PLAYER1);
+                        }
                     }
                 }
+            } else if (strbeg(buffer, "+ YOU")) {
+
+            } else if (strbeg(buffer, "+ TOTAL")) {
+
+            } else if (strbeg(buffer, "+ ENDPLAYERS")) {
+                printf("Unique Message\n");
+                printf("\a");
+            } else if (strbeg(buffer, "+ MOVE")){
+
+            }else if (strbeg(buffer, "+ FIELD")){
+
             }
-
-        } else if(strbeg(buffer, "+ YOU")){
-
-        } else if(strbeg(buffer, "+ TOTAL")){
-
-        }else if(strbeg(buffer, "+ ENDPLAYERS")){
-            printf("\a");
+            else if (strbeg(buffer, "+ ")) {
+                //printf("No one knows what ToDO o.o\n");
+            }
+            else {
+                printf("Fehlerhafte Nachricht vom Server\n");
+                //printf("%s\n", buffer);
+                return -1;
+            }
+            i++;
+            lineBuf = strtok(NULL, splittingTool);
         }
-        else {
-            printf("Fehlerhafte Nachricht vom Server\n");
-            //printf("%s\n", buffer);
-            return -1;
-        }
-        i++;
     }
     return 0;
 }
