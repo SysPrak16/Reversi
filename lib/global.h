@@ -9,6 +9,10 @@
 #define DEF_GAMEKINDNAME "Reversi"
 #define DEF_PORTNUMBER 1357
 #define DEF_HOSTNAME "sysprak.priv.lab.nm.ifi.lmu.de"
+#define CVERSION "VERSION 1.0\n"
+#define CTHINK "THINKING\n"
+#define CWAIT "OKWAIT\n"
+#define GID "ID "
 
 /*
  * Struct, which represents the config file types

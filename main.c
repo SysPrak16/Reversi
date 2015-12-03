@@ -1,20 +1,11 @@
 #include <stdio.h>
 #include <getopt.h>
-#include <string.h>
-#include "lib/prologue.h"
+//#include <string.h>
+//#include "lib/prologue.h"
 #include "lib/appParamHandler.h"
-#include "lib/global.h"
+//#include "lib/global.h"
 #include "lib/fileIOHandler.h"
-
-/*#include <stdlib.h>
-*#include <unistd.h>
-*#include <string.h>
-*#include <sys/types.h>
-*#include <sys/socket.h>
-*#include <netdb.h>
-*#include <netinet/in.h>
-*#include "./lib/performConnection.h"
-*/
+#include "lib/connector.h"
 
 
 
@@ -41,7 +32,7 @@ int main( int argc, char* argv[] )
                     printf("Config File initialised\n");
                 }
                 else{
-                    printf("Initialising form default.\n");
+                    printf("Initialising from default.\n");
                 }
 				break;
 			default:
