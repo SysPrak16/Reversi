@@ -15,11 +15,20 @@
 *#include <netinet/in.h>
 *#include "./lib/performConnection.h"
 */
-
+#include "lib/thinker.h"
 
 
 int main( int argc, char* argv[] )
 {
+
+	field[0][0]='*';	field[0][1]='*';	field[0][2]='*';	field[0][3]='*';
+	field[1][0]='*';	field[1][1]='*';	field[1][2]='*';	field[1][3]='*';
+	field[2][0]='*';	field[2][1]='*';	field[2][2]='*';	field[2][3]='*';
+	field[3][0]='*';	field[3][1]='*';	field[3][2]='*';	field[3][3]='*';
+
+
+	moveOk();
+
 	char *gameID;
 	char *configFile;
     //char *tempID;
