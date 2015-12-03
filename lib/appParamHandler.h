@@ -27,5 +27,7 @@ char* checkParam(int argc, char *argv[]);
  */
 char* readGameID(char *argv);
 
+char* getIDFromTerminal();
+
 
 #endif

@@ -1,95 +1,154 @@
 #include "performConnection.h"
 #include "global.h"
+#include "connector.h"
 
 #include <unistd.h>
 #include <stdio.h>
-#include <strings.h>
 #include <sys/socket.h>
 #include <string.h>
 #include <stdlib.h>
 
+int strbeg(const char *str1, const char *str2)
+{
+    return strncmp(str1, str2, strlen(str2)) == 0;
+}
 
 int performConnection(int socket_fd)
 {
     char buffer[BUF_SIZE];
-    char line[BUF_SIZE];
-    int n,i,cancel;
-    bzero(buffer, BUF_SIZE);
-    bzero(line, BUF_SIZE);
+    int n,i;
+    int *test;
+    test=malloc(sizeof(int));
+    *test=1234;
     //TODO: Actual question and answer game!
-    /*
-     * for now there is only one "right" answer included.
-     * the gameID breaks the server if not correct, so we probably should handle that in the client.
-     * have tested this "feature" extensively, that server is awfully annoying
-     * reminds me: TODO: Ask for debugging server setting with prolonged timeout!!!
-     */
-    //for(i=0;i<2;i++){
-    for(i=0;i<2;i++){
-    //for (;;){
-        cancel=1;
-        bzero(buffer,BUF_SIZE);
-        bzero(line, BUF_SIZE);
-        //TODO: For some reason the second answer is not received completely every time.
-        while(cancel>0 && (n = recv(socket_fd, buffer, 256, 0)) > 0){
-            //printf("Entered While%s\n");
-            if (n<0){
-                perror("ERROR reading from socket");
-                return -1;
-            }
-            if (buffer[n - 1] == '\n') {
-                cancel = 0;
-            }
-            strcat(line, buffer);
-            //printf("BUFFER: %s\n",buffer);
-        }
+    i=0;
+    //while((n = recv(socket_fd, buffer, sizeof(buffer), 0)) > 0)
+    while((n = receiveMessage(socket_fd, buffer, sizeof(buffer))) > 0)
+    {
+        //Placeholder ID: Glimmertintling
+        char sbuf2[]="ID jvmyltF0k3c\n";
+        char sbuf3[]="PLAYER 1\n";
+        char sbuf4[]="THINKING\n";
+        char sbuf5[]="PLAY F2\n";
+        char sbuf6[]="OKWAIT\n";
 
-        printf("SERVER: %s\n", line);
-        /*
-         * CLeaning out buffer, just to be sure.
-         * for some reason cleaning out line before buffer works better than the other way around
-        */
-        bzero(line, BUF_SIZE);
-        bzero(buffer, BUF_SIZE);
-        //TODO: replace with actual statements and remove placeholders
-        switch(i) {
-            case 0:
-                buffer[0]='V';
-                buffer[1]='E';
-                buffer[2]='R';
-                buffer[3]='S';
-                buffer[4]='I';
-                buffer[5]='O';
-                buffer[6]='N';
-                buffer[7]=' ';
-                buffer[8]='1';
-                buffer[9]='.';
-                buffer[10]='0';
-                buffer[11]='\n';
-                printf("Client: %s\n", buffer);
-                send(socket_fd, buffer, BUF_SIZE,0);
-                break;
-            case 1:
-                buffer[0]='I';
-                buffer[1]='D';
-                buffer[2]=' ';
-                buffer[3]='1';
-                buffer[4]='2';
-                buffer[5]='3';
-                buffer[6]='4';
-                buffer[7]='5';
-                buffer[8]='6';
-                buffer[9]='7';
-                buffer[10]='8';
-                buffer[11]='9';
-                buffer[12]='1';
-                buffer[13]='2';
-                buffer[14]='\n';
-                printf("Client: %s\n", buffer);
-                send(socket_fd, buffer, BUF_SIZE,0);
-                break;
-            default:
+        if (strbeg(buffer, "-")){
+            printf("Server Connection error\n");
+            return -1;
+        } else if (strbeg(buffer, "+ MNM Gameserver")){
+            if(send(socket_fd , CVERSION , strlen(CVERSION) , 0) < 0)
+            {
+                puts("Send failed");
                 return -1;
+            }else{
+                printf("Client: %.*s", n, CVERSION);
+            }
+            //printf("Client sending Client Version\n");
+        } else if (strbeg(buffer, "+ Client version accepted - please send Game-ID to join")){
+            if(send(socket_fd , sbuf2, strlen(sbuf2) , 0) < 0)
+            {
+                puts("Send failed");
+                return -1;
+            }else{
+                printf("Client: %.*s", n, sbuf2);
+            }
+            //printf("Client sending Game-ID\n");
+        } else if (strbeg(buffer, "+ PLAYING")){
+            // Auslesen von GameKind-Name
+            if(!strbeg(buffer, "+ PLAYING Reversi"))
+            {
+                printf("Falsche Spielart\n");
+                return -1;
+            }else{
+                if (strbeg(buffer, "+ PLAYING Reversi\n+ ")){
+                    // Senden von Spielernummer
+                    if(send(socket_fd , PLAYER1 , strlen(PLAYER1) , 0) < 0)
+                    {
+                        puts("Send failed");
+                        return -1;
+                    }else{
+                        printf("Client: %.*s", n, PLAYER1);
+                    }
+                } else {
+                    n = receiveMessage(socket_fd, buffer, sizeof(buffer));
+                    if(send(socket_fd , PLAYER1 , strlen(PLAYER1) , 0) < 0)
+                    {
+                        puts("Send failed");
+                        return -1;
+                    }else{
+                        printf("Client: %.*s", n, PLAYER1);
+                    }
+                }
+            }
+
+        } else if(strbeg(buffer, "+ YOU")){
+
+        } else if(strbeg(buffer, "+ TOTAL")){
+
+        }else if(strbeg(buffer, "+ ENDPLAYERS")){
+            printf("\a");
         }
+        else {
+            printf("Fehlerhafte Nachricht vom Server\n");
+            //printf("%s\n", buffer);
+            return -1;
+        }
+        i++;
     }
     return 0;
 }
+
+
+/*
+ * else if (strbeg(buffer, "+ YOU ")){
+            printf("Counter bei: %i\n",i);
+        } else if (strbeg(buffer, "+ TOTAL")){
+            //TODO:NOTHING
+        }
+
+        }else if (strbeg(buffer, "+ PLAYING")){
+            // Auslesen von GameKind-Name
+            if(!strbeg(buffer[11],"Reversi"))
+            {
+                printf("Falsche Spielart\n");
+                return -1;
+            }
+            // Senden von Spielernummer
+            if(send(socket_fd , sbuf3 , strlen(sbuf3) , 0) < 0)
+            {
+                puts("Send failed");
+                return -1;
+            }else{
+                printf("Client: %.*s", n, sbuf3);
+            }
+        } else if(strbeg(buffer, "+") && i==3){
+            // Auslesen von GameName
+        } else if (strbeg(buffer, "+ MOVE") ){
+            // TODO:Der MOVE-Befehl fordert zum Zug auf
+            // TODO:Ausgabe von Spielfeld
+            // TODO:Senden von Thinking
+            if(send(socket_fd , sbuf4 , strlen(sbuf4) , 0) < 0)
+            {
+                puts("Send failed");
+                return -1;
+            }else{
+                printf("Client: %.*s", n, sbuf4);
+            }}else if(strbeg(buffer, "+ OKTHINK") ){
+            // TODO: Senden des Spielzuges
+        }else if(strbeg(buffer, "+ MOVEOK") ){
+            // Gültiger Spielzug gesendet
+        }else if(strbeg(buffer, "+ WAIT")){
+            // Senden des Wartesignals
+            if(send(socket_fd , sbuf6 , strlen(sbuf6) , 0) < 0)
+            {
+                puts("Send failed");
+                return -1;
+            }else{
+                printf("Client: %.*s", n, sbuf6);
+            }
+
+        }else {
+            printf("Fehlerhafte Nachricht vom Server\n");
+            printf("%s\n", buffer);
+            return -1;
+        }*/

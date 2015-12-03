@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "global.h"
 
 
 #define errorString "\0"
@@ -21,14 +20,14 @@ char* checkParam(int argc, char *argv[]){
     GameID = malloc(11 * sizeof(char));
     if(argc < 2 || argc > 2) {
         printf("Sie haben keine Game-ID angegeben! ");
-        char buf[256];
+        /*char buf[256];
         do{
             printf("Bitte geben sie die 11 stellige Game-ID an:");
             scanf("%s",buf);
         }
         while(strlen(buf)!=11);
         strncpy(GameID,buf,11);
-        return GameID;
+        return GameID;*/
         //return readGameID(-1);
         //return errorString; //wrongParamError
     }
@@ -39,7 +38,7 @@ char* checkParam(int argc, char *argv[]){
                 printf("Die von ihnen angegebene Game-ID hat nur %d Stellen! ",count);
                 char buf[256];
                 do{
-                    printf("Bitte geben sie die 11 stellige Game-ID an: ");
+                    printf("Bitte geben sie die 11 stellige Game-ID an: \n");
                     scanf("%s",buf);
                 }
                 while(strlen(buf)!=11);
@@ -69,10 +68,12 @@ char* checkParam(int argc, char *argv[]){
 char* readGameID(char *argv){
     char *GameID;
     GameID = malloc(11 * sizeof(char));
+
     int count = 0;
     while(count<11){
         if(argv[count]=='\0'){
             printf("Die von ihnen angegebene Game-ID hat nur %d Stellen! ",count);
+            //GameID=getIDFromTerminal();
             char buf[256];
             do{
                 printf("Bitte geben sie die 11 stellige Game-ID an: ");
@@ -89,6 +90,7 @@ char* readGameID(char *argv){
     }
     if(argv[count]!='\0'){
         printf("Die von ihnen angegebene Game-ID ist zu lang! ");
+        //GameID=getIDFromTerminal();
         char buf[256];
         do{
             printf("Bitte geben sie die 11 stellige Game-ID an:");
