@@ -18,7 +18,7 @@ int strbeg(const char *str1, const char *str2)
 
 int performConnection(int socket_fd)
 {
-    int getField=0;
+    int getField=0;     //@var Helps to check if we are between +FIELD and +ENDFIELD to know when to read out the mom Field
 
     char buffer[BUF_SIZE];
     int n,i;
