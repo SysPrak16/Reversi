@@ -8,13 +8,18 @@
 #include <string.h>
 #include <stdlib.h>
 
+MTS myMTS;  //global Var for sharing in SHM later on
+
 int strbeg(const char *str1, const char *str2)
 {
     return strncmp(str1, str2, strlen(str2)) == 0;
 }
 
+
 int performConnection(int socket_fd)
 {
+    int getField=0;
+
     char buffer[BUF_SIZE];
     int n,i;
     int *test;
@@ -43,7 +48,7 @@ int performConnection(int socket_fd)
 
         // walk through other tokens
         while( lineBuf != NULL ) {
-            fprintf(stdout, "SERVER: %s\n", lineBuf);
+            fprintf(stdout, "S: %s\n", lineBuf);
             strncpy(buffer, lineBuf, BUF_SIZE);
 
             if (strbeg(buffer, "-")) {
@@ -54,7 +59,7 @@ int performConnection(int socket_fd)
                     puts("Send failed");
                     return -1;
                 } else {
-                    printf("Client: %.*s", n, CVERSION);
+                    printf("C: %.*s", n, CVERSION);
                 }
                 //printf("Client sending Client Version\n");
             } else if (strbeg(buffer, "+ Client version accepted - please send Game-ID to join")) {
@@ -62,7 +67,7 @@ int performConnection(int socket_fd)
                     puts("Send failed");
                     return -1;
                 } else {
-                    printf("Client: %.*s", n, sbuf2);
+                    printf("C: %.*s", n, sbuf2);
                 }
                 //printf("Client sending Game-ID\n");
             } else if (strbeg(buffer, "+ PLAYING")) {
@@ -77,7 +82,7 @@ int performConnection(int socket_fd)
                             puts("Send failed");
                             return -1;
                         } else {
-                            printf("Client: %.*s", n, PLAYER1);
+                            printf("C: %.*s", n, PLAYER1);
                         }
                     } else {
                         n = receiveMessage(socket_fd, buffer, sizeof(buffer));
@@ -85,7 +90,7 @@ int performConnection(int socket_fd)
                             puts("Send failed");
                             return -1;
                         } else {
-                            printf("Client: %.*s", n, PLAYER1);
+                            printf("C: %.*s", n, PLAYER1);
                         }
                     }
                 }
@@ -94,15 +99,35 @@ int performConnection(int socket_fd)
             } else if (strbeg(buffer, "+ TOTAL")) {
 
             } else if (strbeg(buffer, "+ ENDPLAYERS")) {
-                printf("Unique Message\n");
-                printf("\a");
+
             } else if (strbeg(buffer, "+ MOVE")){
-
+                getField=1;
             }else if (strbeg(buffer, "+ FIELD")){
-
+                sscanf(buffer,"+ FIELD %d,%d",&myMTS.width, &myMTS.height);
+                //printf("   Deine Höhe: %d\n   Deine Breite: %d\n",myMTS.height,myMTS.width);      /*Just for Testing*/
+                myMTS.field=malloc(myMTS.height*myMTS.width*sizeof(int));
+            }
+            else if (strbeg(buffer, "+ ")&&getField) {
+                int line;
+                sscanf(buffer,"+ %d",&line);
+                //printf("            %d   ",line);                                                 /*Just for Testing*/
+                for (int j = 0; j < myMTS.width; j++) {
+                    if(buffer[4+j*2]=='W') {
+                        myMTS.field[line-1*myMTS.width+j] = 1;
+                    }else if(buffer[4+j*2]=='B') {
+                        myMTS.field[line-1*myMTS.width+j] = 2;
+                    }else if(buffer[4+j*2]=='*') {
+                        myMTS.field[line-1*myMTS.width+j] = 0;
+                    }
+                        //printf("%d ",myMTS.field[line-1*myMTS.width+j]);                          /*Just for Testing*/
+                }
+                //printf("\n");                                                                     /*Just for Testing*/
+                if(line==1)
+                    getField=0;
+            }else if (strbeg(buffer, "+ ENDFIELD")) {
             }
             else if (strbeg(buffer, "+ ")) {
-                //printf("No one knows what ToDO o.o\n");
+                //TODO Glimmertintling
             }
             else {
                 printf("Fehlerhafte Nachricht vom Server\n");
