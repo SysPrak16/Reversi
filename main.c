@@ -1,3 +1,26 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+//
+// Created by Philipp on 13.11.15.
+//
+
+#include <stdio.h>
+#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h> 
+#include <netinet/in.h>
+=======
+/* damit getopt() deklariert wird */
+#define _POSIX_C_SOURCE 2
+>>>>>>> master
+
+>>>>>>> origin/Philipp
 #include <stdio.h>
 #include <getopt.h>
 #include <string.h>
@@ -52,3 +75,7 @@ int main( int argc, char* argv[] )
 	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
 	return 0;
 }
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> origin/Philipp

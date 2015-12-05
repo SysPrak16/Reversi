@@ -3,6 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+<<<<<<< HEAD
       <sourceFolder url="file://$MODULE_DIR$/README.md" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/appParamHandler.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib/appParamHandler.h" isTestSource="false" />
@@ -372,5 +373,10 @@
         </SOURCES>
       </library>
     </orderEntry>
+=======
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+>>>>>>> origin/Philipp
   </component>
 </module>
