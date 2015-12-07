@@ -1,42 +1,58 @@
-/* damit getopt() deklariert wird */
-#define _POSIX_C_SOURCE 2
+//
+// Created by Philipp on 13.11.15.
+//
 
 #include <stdio.h>
+#include <string.h>
+/* damit getopt() deklariert wird */
+#define _POSIX_C_SOURCE 2
 #include <getopt.h>
-#include "lib/prologue.h"
 #include "lib/appParamHandler.h"
-#include "lib/global.h"
-/*#include <stdlib.h>
-*#include <unistd.h>
-*#include <string.h>
-*#include <sys/types.h>
-*#include <sys/socket.h>
-*#include <netdb.h>
-*#include <netinet/in.h>
-*#include "./lib/performConnection.h"
-*/
+#include "lib/fileIOHandler.h"
+#include "lib/connector.h"
 
 
 
 int main( int argc, char* argv[] )
 {
 	char *gameID;
-	char *configFile;
+	gameID="ERROR";
+    //gameID=malloc(sizeof(char)*11);
+	const char *configFile, *tmpCfgFile;
+    configFile="client.conf";
     //char *tempID;
 	int ret;
 	while ((ret=getopt(argc, argv, "g:c")) != -1) {
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
+                //gameID=checkParam(argc, argv);
+
 				break;
 			case 'c':
-				//ToDO: configurationsfile lesen
+                tmpCfgFile=optarg;
+                if (readCfg(tmpCfgFile)>0){
+                    configFile=tmpCfgFile;
+                    printf("Config File initialised\n");
+                }
+                else{
+                    printf("Initialising from default.\n");
+                }
 				break;
 			default:
 				//TODO: Fehler
 				break;
 		}
 	}
+	if (gameID=="ERROR"){
+        printf("ERROR: Sie haben keine GameID angegeben!\n");
+        char buf[256];
+        do{
+            printf("Bitte geben sie die 11 stellige Game-ID an: \n");
+            scanf("%s",buf);
+        }while(strlen(buf)!=11);
+        gameID=buf;
+    }
 	//gameID = checkParam(argc,argv);
 	printf("Your Game-ID: %s\n",gameID);
 	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert

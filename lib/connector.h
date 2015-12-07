@@ -1,9 +1,9 @@
 //
-// Created by kad on 19.11.15.
+// Created by kad on 26.11.15.
 //
 
-#ifndef REVERSI_PROLOGUE_H
-#define REVERSI_PROLOGUE_H
+#ifndef REVERSI_CONNECTOR_H
+#define REVERSI_CONNECTOR_H
 
 #include "global.h"
 
@@ -11,6 +11,7 @@
  * Creates all necessary stuff to open and establish connection to the server.
  */
 int connectToServer(int portnumber, char hostname[BUF_SIZE]);
-//char* readGameID(int err);
 
-#endif //REVERSI_PROLOGUE_H
+int receiveMessage(int sfd, char* buffer, int size);
+
+#endif //REVERSI_CONNECTOR_H
