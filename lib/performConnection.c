@@ -18,7 +18,7 @@ int strbeg(const char *str1, const char *str2)
 
 int performConnection(int socket_fd)
 {
-    int getField=0;     //@var Helps to check if we are between +FIELD and +ENDFIELD to know when to read out the mom Field
+    int getField=0; //@var Helps to check if we are between +FIELD and +ENDFIELD to know when to read out the mom Field
 
     char buffer[BUF_SIZE];
     int n,i,j;
@@ -27,7 +27,8 @@ int performConnection(int socket_fd)
     while((n = receiveMessage(socket_fd, buffer, sizeof(buffer))) > 0)
     {
         //Placeholder ID: WAIT
-        char sbuf2[]="ID OOxUYtkaiFE\n";
+        char sbuf2[]="ID AoNuBicHhoc\n";
+        char play[]="PLAY E6\n";
 
         const char splitToken[2] = "\n";
         char *lineBuf;
@@ -100,13 +101,13 @@ int performConnection(int socket_fd)
                 getField=1;
             }else if (strbeg(lineBuf, "+ FIELD")){
                 sscanf(lineBuf, "+ FIELD %d,%d", &myMTS.width, &myMTS.height);
-                printf("   Deine Höhe: %d\n   Deine Breite: %d\n",myMTS.height,myMTS.width);      /*Just for Testing*/
+                //printf("   Deine Höhe: %d\n   Deine Breite: %d\n",myMTS.height,myMTS.width);      //Just for Testing
                 myMTS.field=malloc(myMTS.height*myMTS.width*sizeof(int));
             }
             else if (strbeg(lineBuf, "+ ") && getField) {
                 int line;
                 sscanf(lineBuf, "+ %d", &line);
-                //printf("            %d   ",line);                                                 /*Just for Testing*/
+                //printf("            %d   ",line);                                                 //Just for Testing
                 for (j = 0; j < myMTS.width; j++) {
                     if(lineBuf[4 + j * 2] == 'W') {
                         myMTS.field[line-1*myMTS.width+j] = 1;
@@ -115,9 +116,10 @@ int performConnection(int socket_fd)
                     }else if(lineBuf[4 + j * 2] == '*') {
                         myMTS.field[line-1*myMTS.width+j] = 0;
                     }
-                //printf("%d ",myMTS.field[line-1*myMTS.width+j]);                                  /*Just for Testing*/
+                //printf("%d ",myMTS.field[line-1*myMTS.width+j]);                                  //Just for Testing
+                    //TEST
                 }
-                //printf("\n");                                                                     /*Just for Testing*/
+                //printf("\n");                                                                     //Just for Testing
                 if(line==1)
                     getField=0;
             } else if (strbeg(lineBuf, "+ ENDFIELD")) {
@@ -126,6 +128,14 @@ int performConnection(int socket_fd)
                     return -1;
                 } else {
                     printf("C: %.*s", n, CTHINK);
+                }
+            } else if (strbeg(lineBuf, "+ OKTHINK")) {
+                //TODO PLAY -- MOVE
+                if (send(socket_fd, play, strlen(play), 0) < 0) {
+                    puts("Send failed");
+                    return -1;
+                } else {
+                    printf("C: %.*s", n, play);
                 }
             } else if (strbeg(lineBuf, "+ ")) {
                 //TODO Glimmertintling
