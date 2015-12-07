@@ -26,4 +26,14 @@ typedef struct{
     char hostname[256];
 }config_t;
 
+/*
+ * @NAME MTS (Memory to Share)
+ *
+ */
+typedef struct{
+    int *field;
+    int height;
+    int width;
+}MTS;
+
 #endif //REVERSI_GLOBAL_H

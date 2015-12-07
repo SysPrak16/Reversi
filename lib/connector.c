@@ -64,8 +64,8 @@ int receiveMessage(int sfd, char* buffer, int size)
         }
         buffer[n] = 0;
         //Abbruch bei vorletzter Stelle \n
-        if (n != 0 && buffer[n - 1] == '\n') {
-            fprintf(stdout, "SERVER: %s", buffer);
+        if (n != 0 && buffer[n-1] == '\n') {
+            //fprintf(stdout, "SERVER: %s\n", buffer);      Auskommentiert, da aus performConnection geprintet wird ()
             break;
         }
     }
