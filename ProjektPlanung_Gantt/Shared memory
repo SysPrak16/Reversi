@@ -2,8 +2,8 @@ Konvention für Spielfeld im shared memory
 
 wahrscheinliche Angabe vom Server:
 * = leer
-Player 0 = weiss
-Player 1 = schwarz
+Player 0 = W
+Player 1 = B
 
 Ziel: 
 leer = 0
