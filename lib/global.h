@@ -4,7 +4,7 @@
 
 #ifndef REVERSI_GLOBAL_H
 #define REVERSI_GLOBAL_H
-#define BUF_SIZE 2028
+#define BUF_SIZE 512
 
 #define DEF_GAMEKINDNAME "Reversi"
 #define DEF_PORTNUMBER 1357
@@ -24,6 +24,7 @@ typedef struct{
     char gamename[256];
     unsigned short port;
     char hostname[256];
+    char aiType[256];
 }config_t;
 
 /*

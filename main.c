@@ -3,20 +3,10 @@
 //
 
 #include <stdio.h>
-#include "main.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h> 
-#include <netinet/in.h>
 /* damit getopt() deklariert wird */
 #define _POSIX_C_SOURCE 2
-#include <stdio.h>
 #include <getopt.h>
-#include <string.h>
 #include "lib/appParamHandler.h"
 #include "lib/fileIOHandler.h"
 #include "lib/connector.h"
