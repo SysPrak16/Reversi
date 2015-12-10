@@ -22,8 +22,6 @@
 #include "lib/connector.h"
 #include "lib/thinker.h"
 
-
-
 int main( int argc, char* argv[] )
 {
 	char *gameID;
