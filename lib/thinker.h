@@ -15,4 +15,10 @@ char* convertMove(int position, int groesse);
 */
 int gueltigeZuege(int feld[], int groesse);
 
+/*
+ * Think() method.
+ * this is doing a lot of work as initialising the shared memory and thinking
+ */
+int think();
+
 #endif //REVERSI_THINKER_H

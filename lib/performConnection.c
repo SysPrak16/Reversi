@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 MTS myMTS;  //global Var for sharing in SHM later on
+extern config_t config;
 
 int strbeg(const char *str1, const char *str2)
 {
@@ -21,18 +22,30 @@ int performConnection(int socket_fd)
     int getField=0; //@var Helps to check if we are between +FIELD and +ENDFIELD to know when to read out the mom Field
 
     char buffer[BUF_SIZE];
+    printf("From Connector: %s\n",config.gameID);
     int n,i,j;
     //TODO: Actual question and answer game!
+    //Placeholder ID: WAIT
+    //TODO: resolve test variables!
+    //TEST--Start
+    char play[]="PLAY G1\n";
+    //TEST--End
+    // ID: AoNuBicHhoc
+
+    // Creating gameID-token for protocol
+    char gid[16];
+    strcpy(gid, "ID ");
+    strcat(gid, config.gameID);
+    strcat(gid, "\n");
+    //Split by \n
+    const char splitToken[2] = "\n";
+
     i=0;
     while((n = receiveMessage(socket_fd, buffer, sizeof(buffer))) > 0)
     {
-        //Placeholder ID: WAIT
-        char sbuf2[]="ID AoNuBicHhoc\n";
-        char play[]="PLAY E6\n";
 
-        const char splitToken[2] = "\n";
         char *lineBuf;
-
+        
         //get the first token
         lineBuf = strtok(buffer, splitToken);
 
@@ -41,10 +54,22 @@ int performConnection(int socket_fd)
             fprintf(stdout, "S: %s\n", lineBuf);
             //strncpy(lineBuf, lineBuf, BUF_SIZE);
 
-            if (strbeg(lineBuf, "-")) {
-                printf("Server Connection error\n");
+            if (strbeg(lineBuf, CON_TIMEOUT)) {
+                printf(CON_TIMEOUT_ERR_MSG);
                 return -1;
-            } else if (strbeg(lineBuf, "+ MNM Gameserver")) {
+            } else if (strbeg(lineBuf, VERSION_ERROR)) {
+                printf(VERSION_ERROR_MSG);
+                return -1;
+            } else if (strbeg(lineBuf, NO_FREE_PLAYER)) {
+                printf(NO_FREE_PLAYER_MSG);
+                return -1;
+            } else if (strbeg(lineBuf, NO_GAME_ERROR)) {
+                printf(NO_GAME_ERROR_MSG);
+                return -1;
+            } else if (strbeg(lineBuf, INVALID_MOVE)) {
+                printf(INVALID_MOVE_MSG);
+                return -1;
+            } else if (strbeg(lineBuf, MNM_SERVER)) {
                 if (send(socket_fd, CVERSION, strlen(CVERSION), 0) < 0) {
                     puts("Send failed");
                     return -1;
@@ -52,18 +77,18 @@ int performConnection(int socket_fd)
                     printf("C: %.*s", n, CVERSION);
                 }
                 //printf("Client sending Client Version\n");
-            } else if (strbeg(lineBuf, "+ Client version accepted - please send Game-ID to join")) {
-                if (send(socket_fd, sbuf2, strlen(sbuf2), 0) < 0) {
+            } else if (strbeg(lineBuf, VERSION_ACCEPTED)) {
+                if (send(socket_fd, gid, strlen(gid), 0) < 0) {
                     puts("Send failed");
                     return -1;
                 } else {
-                    printf("C: %.*s", n, sbuf2);
+                    printf("C: %.*s", n, gid);
                 }
                 //printf("Client sending Game-ID\n");
             } else if (strbeg(lineBuf, "+ PLAYING")) {
                 // Auslesen von GameKind-Name
                 if (!strbeg(lineBuf, "+ PLAYING Reversi")) {
-                    printf("Falsche Spielart\n");
+                    printf(GAMEKIND_ERROR_MSG);
                     return -1;
                 } else {
                     if (strbeg(lineBuf, "+ PLAYING Reversi")) {

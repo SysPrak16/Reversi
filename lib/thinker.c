@@ -12,6 +12,8 @@
 //(breite^2)-1 ist rechts unten
 
 
+
+
 int oben(int position, int groesse, int feld[])
 {
     if ((position - groesse)<0){

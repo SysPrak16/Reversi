@@ -10,13 +10,16 @@
 #include "lib/appParamHandler.h"
 #include "lib/fileIOHandler.h"
 #include "lib/connector.h"
+//#include "lib/global.h"
 
-
+//global variable
+extern config_t config;
 
 int main( int argc, char* argv[] )
 {
 	char *gameID;
 	gameID="ERROR";
+	initconfig();
     //gameID=malloc(sizeof(char)*11);
 	const char *configFile, *tmpCfgFile;
     configFile="client.conf";
@@ -26,6 +29,7 @@ int main( int argc, char* argv[] )
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
+                strcpy(config.gameID, gameID);
                 //gameID=checkParam(argc, argv);
 
 				break;
@@ -52,9 +56,9 @@ int main( int argc, char* argv[] )
             scanf("%s",buf);
         }while(strlen(buf)!=11);
         gameID=buf;
+        strcpy(config.gameID, gameID);
     }
-	//gameID = checkParam(argc,argv);
-	printf("Your Game-ID: %s\n",gameID);
+	printf("Your Game-ID: %s\n", config.gameID);
 	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
 	return 0;
 }
