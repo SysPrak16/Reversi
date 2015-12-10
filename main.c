@@ -20,6 +20,7 @@
 #include "lib/appParamHandler.h"
 #include "lib/fileIOHandler.h"
 #include "lib/connector.h"
+#include "lib/thinker.h"
 
 
 
@@ -37,8 +38,7 @@ int main( int argc, char* argv[] )
 			case 'g':
                 gameID=readGameID(optarg);
                 //gameID=checkParam(argc, argv);
-
-				break;
+                break;
 			case 'c':
                 tmpCfgFile=optarg;
                 if (readCfg(tmpCfgFile)>0){
@@ -65,6 +65,7 @@ int main( int argc, char* argv[] )
     }
 	//gameID = checkParam(argc,argv);
 	printf("Your Game-ID: %s\n",gameID);
-	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
-	return 0;
+    return think();
+	//connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
+	//return 0;
 }

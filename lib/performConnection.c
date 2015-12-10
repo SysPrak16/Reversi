@@ -31,8 +31,8 @@ int performConnection(int socket_fd)
     while((n = receiveMessage(socket_fd, buffer, sizeof(buffer))) > 0)
     {
         //Placeholder ID: Glimmertintling
-        char sbuf2[]="ID jvmyltF0k3c\n";
-        char sbuf3[]="PLAYER 1\n";
+        char sbuf2[]="ID LU2Yj9irBP4\n";/* jvmyltF0k3c*/
+        char sbuf3[]="PLAYER\n";
         char sbuf4[]="THINKING\n";
         char sbuf5[]="PLAY F2\n";
         char sbuf6[]="OKWAIT\n";
@@ -78,19 +78,19 @@ int performConnection(int socket_fd)
                 } else {
                     if (strbeg(buffer, "+ PLAYING Reversi")) {
                         // Senden von Spielernummer
-                        if (send(socket_fd, PLAYER1, strlen(PLAYER1), 0) < 0) {
+                        if (send(socket_fd, sbuf3, strlen(sbuf3), 0) < 0) {
                             puts("Send failed");
                             return -1;
                         } else {
-                            printf("C: %.*s", n, PLAYER1);
+                            printf("C: %.*s", n, sbuf3);
                         }
                     } else {
                         n = receiveMessage(socket_fd, buffer, sizeof(buffer));
-                        if (send(socket_fd, PLAYER1, strlen(PLAYER1), 0) < 0) {
+                        if (send(socket_fd, sbuf3, strlen(sbuf3), 0) < 0) {
                             puts("Send failed");
                             return -1;
                         } else {
-                            printf("C: %.*s", n, PLAYER1);
+                            printf("C: %.*s", n, sbuf3);
                         }
                     }
                 }
@@ -125,6 +125,27 @@ int performConnection(int socket_fd)
                 if(line==1)
                     getField=0;
             }else if (strbeg(buffer, "+ ENDFIELD")) {
+                if (send(socket_fd, sbuf4, strlen(sbuf4), 0) < 0) {
+                    puts("Send failed");
+                    return -1;
+                } else {
+                    printf("C: %.*s", n, sbuf4);
+                }
+            } else if (strbeg(buffer, "+ WAIT")) {
+                if (send(socket_fd, sbuf6, strlen(sbuf6), 0) < 0) {
+                    puts("Send failed");
+                    return -1;
+                } else {
+                    printf("C: %.*s", n, sbuf6);
+                }
+            } else if (strbeg(buffer, "+ OKTHINK")){
+                //Senden Zug
+                /*if (send(socket_fd, "PLAY H6\n", strlen("PLAY H6\n"), 0) < 0) {
+                    puts("Send failed");
+                    return -1;
+                } else {
+                    printf("C: PLAY H6\n");
+                }*/
             }
             else if (strbeg(buffer, "+ ")) {
                 //TODO Glimmertintling
