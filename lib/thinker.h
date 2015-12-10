@@ -6,9 +6,9 @@
 #define REVERSI_THINKER_H
 
 /*
-	Converts position-ID into string
+	Converts position-ID into string, as spielzug use an empty char[3]
 */
-char* convertMove(int position, int groesse);
+char* convertMove(char * spielzug, int position, int groesse);
 
 /*
 	returns a valid move with included random AI
