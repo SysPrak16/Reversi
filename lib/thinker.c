@@ -26,6 +26,7 @@ int oben(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug oben(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -41,6 +42,7 @@ int linksoben(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug linksoben(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -56,6 +58,7 @@ int rechtsoben(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug rechtsoben(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -71,6 +74,7 @@ int unten(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug unten(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -86,6 +90,7 @@ int linksunten(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug linksunten(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -101,6 +106,7 @@ int rechtsunten(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug rechtsunten(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -116,6 +122,7 @@ int links(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug links(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -131,6 +138,7 @@ int rechts(int position, int groesse, int feld[])
         return 0;
     } else {
         printf("Fehler bei Berechnung des Spielzug links(), Position %i", position );
+        return -groesse;
     }
 }
 
@@ -143,15 +151,16 @@ int randomAI (int zuege[], int anzahl){
 
 char* convertMove(char * spielzug, int position, int groesse){
     spielzug[0] = (position % groesse) + 65;
-    int y = groesse - (position / groesse)-1;
+    int y = groesse - (position / groesse);
     if (y>9) {
         spielzug[1] = 49;
-        spielzug[2] = y % 10 + 49;
+        spielzug[2] = y % 10 + 48;
     }
     else {
-        spielzug[1] = y+49;
+        spielzug[1] = y+48;
+        spielzug[2] = 0;
     }
-    printf("Zug: %s\n", spielzug);
+    //printf("Zug: %s\n", spielzug);
     return spielzug;
 }
 
@@ -209,7 +218,9 @@ int gueltigeZuege(int feld[], int groesse){
     }
 
     if (sizeZuege == 0)
-    { return -1;  }
+    { 
+        printf("kein gültiger Zug berechenbar");
+        return -1;  }
     zug = randomAI(zuege,sizeZuege);
     free(zuege);
     return zug;
