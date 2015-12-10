@@ -101,3 +101,9 @@ int readCfg(const char *filename) {
     regfree(&regular_expression);
     return 0;
 }
+
+void initconfig()
+{
+    memset(&config, 0, sizeof(config));
+    config.aiType =AI_RAND;
+}

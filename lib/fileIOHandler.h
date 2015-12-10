@@ -12,5 +12,6 @@
  * @returns: -1 on failure, 0 else;
  */
 int readCfg(const char *filename);
+void initconfig();
 
 #endif //REVERSI_FILEIOHANDLER_H

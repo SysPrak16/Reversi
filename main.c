@@ -3,29 +3,23 @@
 //
 
 #include <stdio.h>
-#include "main.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h> 
-#include <netinet/in.h>
 /* damit getopt() deklariert wird */
 #define _POSIX_C_SOURCE 2
-#include <stdio.h>
 #include <getopt.h>
-#include <string.h>
 #include "lib/appParamHandler.h"
 #include "lib/fileIOHandler.h"
 #include "lib/connector.h"
-#include "lib/thinker.h"
+//#include "lib/global.h"
+
+//global variable
+extern config_t config;
 
 int main( int argc, char* argv[] )
 {
 	char *gameID;
 	gameID="ERROR";
+	initconfig();
     //gameID=malloc(sizeof(char)*11);
 	const char *configFile, *tmpCfgFile;
     configFile="client.conf";
@@ -35,8 +29,10 @@ int main( int argc, char* argv[] )
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
+                strcpy(config.gameID, gameID);
                 //gameID=checkParam(argc, argv);
-                break;
+
+				break;
 			case 'c':
                 tmpCfgFile=optarg;
                 if (readCfg(tmpCfgFile)>0){
@@ -60,10 +56,9 @@ int main( int argc, char* argv[] )
             scanf("%s",buf);
         }while(strlen(buf)!=11);
         gameID=buf;
+        strcpy(config.gameID, gameID);
     }
-	//gameID = checkParam(argc,argv);
-	printf("Your Game-ID: %s\n",gameID);
-    return think();
-	//connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
-	//return 0;
+	printf("Your Game-ID: %s\n", config.gameID);
+	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
+	return 0;
 }
