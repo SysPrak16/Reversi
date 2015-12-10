@@ -141,8 +141,7 @@ int randomAI (int zuege[], int anzahl){
     return zuege[r];
 }
 
-char* convertMove(int position, int groesse){
-    char spielzug[3];
+char* convertMove(char * spielzug, int position, int groesse){
     spielzug[0] = (position % groesse) + 65;
     int y = groesse - (position / groesse)-1;
     if (y>9) {
