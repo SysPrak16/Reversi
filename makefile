@@ -1,7 +1,7 @@
 CC 				= gcc
 CFLAGS 		= -Wall -st=c99 -g
 
-OBJECTS 	= main.o performConnection.o connector.o thinker.o appParamHandler.o errorHandler.o fileIOHandler.o
+OBJECTS 	= main.o lib/performConnection.o lib/connector.o lib/thinker.o lib/appParamHandler.o lib/errorHandler.o lib/fileIOHandler.o
 TARGET 		= reversi
 
 all: $(OBJECTS)
