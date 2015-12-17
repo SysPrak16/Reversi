@@ -10,6 +10,8 @@
 #include "lib/appParamHandler.h"
 #include "lib/fileIOHandler.h"
 #include "lib/connector.h"
+#include "lib/thinker.h"
+#include "lib/global.h"
 //#include "lib/global.h"
 
 //global variable
@@ -48,7 +50,9 @@ int main( int argc, char* argv[] )
 				break;
 		}
 	}
-	if (gameID=="ERROR"){
+    config.port=1357;
+    strcpy(config.hostname,DEF_HOSTNAME);
+	if (strcmp(gameID,"ERROR")==0){
         printf("ERROR: Sie haben keine GameID angegeben!\n");
         char buf[256];
         do{
@@ -59,6 +63,7 @@ int main( int argc, char* argv[] )
         strcpy(config.gameID, gameID);
     }
 	printf("Your Game-ID: %s\n", config.gameID);
-	connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
-	return 0;
+    return think();
+	/*connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
+	return 0;*/
 }

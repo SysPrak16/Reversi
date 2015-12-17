@@ -10,7 +10,7 @@
 /*
  * Creates all necessary stuff to open and establish connection to the server.
  */
-int connectToServer(int portnumber, char hostname[BUF_SIZE]);
+int connectToServer();
 
 int receiveMessage(int sfd, char* buffer, int size);
 

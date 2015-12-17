@@ -7,6 +7,15 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/shm.h>
+
+typedef struct {
+    int *field;
+    int height;
+    int width;
+    int flag;
+    int fielda[8*8];
+}SHM;
 
 MTS myMTS;  //global Var for sharing in SHM later on
 extern config_t config;
@@ -19,10 +28,114 @@ int strbeg(const char *str1, const char *str2)
 
 int performConnection(int socket_fd)
 {
+
+    /*int *shm_ptr;
+    key_t shmKey;
+
+    shmKey = ftok(".", 'x');
+
+    int shm_id = shmget(shmKey, sizeof(myMTS), IPC_CREAT | 0666);
+    if (shm_id < 0){
+        puts("Fehler bei shmget()");
+        return -1;
+    }
+
+    shm_ptr = (int *) shmat(shm_id, NULL, 0);
+
+    if ((int)shm_ptr == -1){
+        puts("Fehler bei shmat()");
+        return -1;
+    }
+
+
+    // A common header file to describe the shared memory we wish to pass about.
+
+
+#define TEXT_SZ 2048
+
+    struct shared_use_st {
+        int written_by_you;
+        char some_text[TEXT_SZ];
+    };
+
+Our first program is a consumer. After the headers the shared memory segment
+ (the size of our shared memory structure) is created with a call to shmget,
+ with the IPC_CREAT bit specified.
+
+
+
+The second program is the producer and allows us to enter data for consumers.
+ It's very similar to shm1.c and looks like this.
+
+
+        int running = 1;
+        void *shared_memory = (void *)0;
+        MTS *myMTS2;
+        char buffer2[TEXT_SZ ];
+        int shmid;
+        int mykey = getuid();
+
+
+        shmid = shmget((key_t)mykey, sizeof(MTS), 0666 | IPC_CREAT);
+
+        if (shmid == -1) {
+            fprintf(stderr, "shmget failed\n");
+            exit(EXIT_FAILURE);
+        }
+
+        shared_memory = shmat(shmid, (void *)0, 0);
+        if (shared_memory == (void *)-1) {
+            fprintf(stderr, "shmat failed\n");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("Memory attached at %X\n", (int)shared_memory);
+*/
+
+
+
+
+
+
+
+    //int runningc=1;
+    void *shared_memory_c = (void*)0;
+    uSHY *myuSHYc;
+    int shmidc;
+    int mykeyc=getuid();
+
+    shmidc = shmget((key_t)mykeyc, sizeof(SHM),0666 | IPC_CREAT);
+
+    if(shmidc ==-1){
+        perror("Fehler bei shmget\n");
+        exit(EXIT_FAILURE);
+    }
+
+    shared_memory_c = shmat(shmidc,(void*)0,0);
+    if(shared_memory_c==(void*)-1){
+        perror("Fehler bei shmat.");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Memory attached at %X\n",(int) shared_memory_c);
+    myuSHYc = (uSHY*) shared_memory_c;
+
+
+
+
+
+
+
+
+
+    memset(&myMTS, 0, sizeof(myMTS));
+
+    int opi=0;      //@var Opponent Info Flag
+    int ggN=0;      //@var Get Game Name Flag
     int getField=0; //@var Helps to check if we are between +FIELD and +ENDFIELD to know when to read out the mom Field
 
     char buffer[BUF_SIZE];
-    printf("From Connector: %s\n",config.gameID);
+    printf("Your Game ID: %s\n",config.gameID);
     int n,i,j;
     //TODO: Actual question and answer game!
     //Placeholder ID: WAIT
@@ -86,6 +199,7 @@ int performConnection(int socket_fd)
                 }
                 //printf("Client sending Game-ID\n");
             } else if (strbeg(lineBuf, "+ PLAYING")) {
+                ggN=1;
                 // Auslesen von GameKind-Name
                 if (!strbeg(lineBuf, "+ PLAYING Reversi")) {
                     printf(GAMEKIND_ERROR_MSG);
@@ -109,10 +223,52 @@ int performConnection(int socket_fd)
                         }
                     }
                 }
+            } else if (ggN&&strbeg(lineBuf, "+ ")) {    //Getting Gamename
+
+                //TODO Glimmertintling
+
+                while(myuSHYc->flag>0){
+                    sleep(1);
+                    printf("Waiting for parent...\n");
+                    printf("\n");
+                }
+                if(myuSHYc->flag==-1){
+                    printf("1.Kind\n\tWriting Gamename...\n");
+                    strncpy(myuSHYc->gamename,lineBuf,BUF_SIZE);    //TODO "+ " weglassen
+                    myuSHYc->flag=1;     //For 1st Step Parent
+                }
+                ggN=0;
             } else if (strbeg(lineBuf, "+ YOU")) {
+                if(myuSHYc->flag==-2){
+
+                    printf("2.Kind\n\tWriting Spielernummer...\n");
+                    sscanf(lineBuf,"+ YOU %i",&myuSHYc->playernum);
+
+                    printf("\tWriting Spielername...\n");
+                    //TODO Später in SHM schreiben
+
+                    myuSHYc->flag=2;     //For 2nd Step Parent
+                }
+                printf("\tWaiting for parent to read...\n");
+                while(myuSHYc->flag>0){
+                    sleep(1/100);
+                }
+
 
             } else if (strbeg(lineBuf, "+ TOTAL")) {
-
+                if(myuSHYc->flag==-3){
+                    printf("3.Kind\n\tWriting Spielerzahl...\n");
+                    sscanf(lineBuf,"+ TOTAL %d",&myuSHYc->players);
+                    myuSHYc->flag=3;
+                }
+                printf("\tWaiting for parent to read...\n");
+                while(myuSHYc->flag>0){
+                    sleep(1/100);
+                }
+                opi=1;
+            }else if(opi&&strbeg(lineBuf, "+ ")){
+                //TODO Später in SHM schreiben
+                opi=0;
             } else if (strbeg(lineBuf, "+ ENDPLAYERS")) {
 
             } else if (strbeg(lineBuf, "+ WAIT")) {
@@ -141,18 +297,85 @@ int performConnection(int socket_fd)
                     }else if(lineBuf[4 + j * 2] == '*') {
                         myMTS.field[line-1*myMTS.width+j] = 0;
                     }
-                //printf("%d ",myMTS.field[line-1*myMTS.width+j]);                                  //Just for Testing
+                    //printf("%d ",myMTS.field[line-1*myMTS.width+j]);                                  //Just for Testing
                     //TEST
                 }
                 //printf("\n");                                                                     //Just for Testing
                 if(line==1)
                     getField=0;
             } else if (strbeg(lineBuf, "+ ENDFIELD")) {
+
+
+
+                /*while (runningc){
+                    while(myuSHYc->flag>0){
+                        sleep(1);
+                        //printf("Waiting for parent...\n");
+                        printf("\n");
+                    }
+                    switch (myuSHYc->flag){
+                        case -1:{
+                            printf("1.Kind\n\tWriting Gamename...\n");
+                            strncpy(myuSHYc->gamename,"Glimmertintling",BUF_SIZE);
+                            myuSHYc->flag=1;     //For 1st Step Parent
+                            break;
+                        }
+                        case -2:{
+                            printf("2.Kind\n\tWriting Spielernummer...\n");
+                            myuSHYc->playernum=1;
+                            myuSHYc->flag=2;     //For 2nd Step Parent
+                            //runningc=0;
+                            break;
+                        }
+                        case -3:{
+                            printf("3.Kind\n\tWriting Field...\n");
+                            myuSHYc->players=2;
+                            myuSHYc->flag=3;
+                            runningc=0;
+                            break;
+                        }
+                    }
+                }*/
+
                 if (send(socket_fd, CTHINK, strlen(CTHINK), 0) < 0) {
                     puts("Send failed");
                     return -1;
                 } else {
                     printf("C: %.*s", n, CTHINK);
+
+
+
+
+
+/*                    myMTS2 = (MTS *)shared_memory;
+                    while(running) {
+                        while(myMTS2->written_by_you == 1) {
+                            sleep(1);
+                            printf("waiting for client...\n");
+                        }
+                        *//*printf("Enter some text: ");
+                        fgets(buffer2, BUFSIZ, stdin);*//*
+
+                        strncpy(myMTS2->some_text, buffer, BUF_SIZE);
+                        myMTS2->height=myMTS.height;
+                        myMTS2->width=myMTS.width;
+                        for (int k = 0; k < myMTS.height*myMTS.width; k++) {
+                            myMTS2->field[k]=myMTS.field[k];
+                            printf("%d",k);
+                        }
+                        printf("\n");
+                        myMTS2->written_by_you = 1;
+
+                        running = 0;
+                    }
+                }
+
+
+
+                if (shmdt(shared_memory) == -1) {
+                    fprintf(stderr, "shmdt failed\n");
+                    exit(EXIT_FAILURE);
+                }*/
                 }
             } else if (strbeg(lineBuf, "+ OKTHINK")) {
                 //TODO PLAY -- MOVE
@@ -162,12 +385,11 @@ int performConnection(int socket_fd)
                 } else {
                     printf("C: %.*s", n, play);
                 }
-            } else if (strbeg(lineBuf, "+ ")) {
-                //TODO Glimmertintling
             }
             else {
                 printf("Fehlerhafte Nachricht vom Server\n");
                 //printf("%s\n", lineBuf);
+                    myuSHYc->flag=42;       //Bricht SHM in Eleternprozess ab -> Beenden des Programmes
                 return -1;
             }
             i++;
