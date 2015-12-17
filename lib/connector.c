@@ -38,7 +38,7 @@ int connectToServer(int portnumber, char hostname[BUF_SIZE])
      * Thus, this line initializes serv_addr to zeros.
      */
 
-    bcopy((char *)server->h_addr,
+    bcopy((char *)server->h_addr_list[0],
           (char *)&serv_addr.sin_addr.s_addr,
           server->h_length);
 
