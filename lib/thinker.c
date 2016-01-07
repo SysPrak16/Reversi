@@ -13,6 +13,8 @@
 
 extern MTS myMTS;
 
+
+
 typedef struct {
     int *field;
     int height;
@@ -25,8 +27,6 @@ int think(){
 
     int ret;    //return of connectTOServer
 
-
-
     int running=1;
 
     //SHM
@@ -37,7 +37,7 @@ int think(){
 
     srand((unsigned int)getpid());
 
-    shmid = shmget((key_t)mykey, /*sizeof(SHM)*/2048,0666| IPC_CREAT);
+    shmid = shmget((key_t)mykey, sizeof(SHM)/*2048*/,0666| IPC_CREAT);
 
     if(shmid==-1){
         perror("Fehler bei shmget().");
@@ -56,8 +56,20 @@ int think(){
 
     myuSHY->flag=-1;     //For 1st step Child
 
-
     pid_t pid = 0;
+
+
+    //SHM for Players
+    int p_shm_id;           // Shared Memory ID
+    key_t p_shm_key;        // Shared Memory Key
+    player_info *iPlay;     // Shared Memory Data
+
+    //SHM for Field
+    int f_shm_id;           // Shared Memory ID
+    key_t f_shm_key;        // Shared Memory Key
+    int *field;             // Shared Memory Data
+
+
 
 
 
@@ -68,28 +80,109 @@ int think(){
     }
     if(pid>0){
         printf("Elternprozess\n");
+
+        printf("Writing PID...\n");
+        myuSHY->PIDP = getpid();
+        printf("\tPID Parent: %d\n",myuSHY->PIDP);
+
         while (running){
             if(myuSHY->flag>0){
                 switch(myuSHY->flag){
                     case 1:{
                         printf("1.Eltern\n");
                         //mySHM->field=malloc(mySHM->width*mySHM->height* sizeof(int));
-                        printf("\tGetting Gamename...\n Gamename: %s\n",myuSHY->gamename);
+                        printf("\tGetting Gamename...\n\tGamename: %s\n",myuSHY->gamename);
                         myuSHY->flag=-2;
                         break;
                     }
                     case 2:{
                         printf("2.Eltern\n");
                         printf("\tGetting Spielernummer...\n\tSpielernummer: %d\n",myuSHY->playernum);
+                        //TODO SHM für Spieler
                         myuSHY->flag=-3;
                         break;
                     }
                     case 3:{
                         printf("3.Eltern\n\tGetting Spieleranzahl...\n\tSpieleranzahl: %d\n",myuSHY->players);
+
+                        //SHM for Players
+                        printf("Creating %d more SHM for Players...\n",myuSHY->players-1);
+                        p_shm_key = ftok(".", 'P');
+                        p_shm_id = shmget (p_shm_key, (myuSHY->players-1)*sizeof(iPlay), IPC_CREAT | 0666);
+                        if (p_shm_id < 0){
+                            printf("shmget error\n");
+                            exit(1);
+                        }
+
+                        iPlay = (player_info*) shmat(p_shm_id,NULL,0);
+
+                        if ((int) iPlay == -1) {
+                            printf("*** shmat error (server) ***\n");
+                            exit(1);
+                        }
+
+                        //pid_t pid = 0;
+                        printf("Memory attached at %X\n",(int) iPlay);
+
                         myuSHY->flag=-4;
                         break;
                     }
+                    case 4:{
+                        printf("4.Eltern\n\tGetting Player Info...\n\tNumber: %d\n\tName: %s\n\tFlag: %d\n",iPlay->playernum,iPlay->playername,iPlay->flag);
+                        myuSHY->flag=-5;
+                        break;
+                    }
+                    case 5:{
+                        printf("5.Eltern\n\tGetting Height...\n\tHeight: %d\n",myuSHY->height);
+                        printf("\tGetting Width...\n\tWidth: %d\n",myuSHY->width);
+                        //SHM Field
+                        printf("Initialising Field SHM...\n");
+                        f_shm_key = ftok(".",'F');
+                        f_shm_id = shmget(f_shm_key,myuSHY->width*myuSHY->height*sizeof(int), IPC_CREAT | 0666);
+                        if(f_shm_id < 0){
+                            printf("shmget error\n");
+                            exit(1);
+                        }
+                        field = (int*) shmat(f_shm_id,NULL,0);
+                        if((int) field == -1){
+                            printf("shmat error\n");
+                            exit(1);
+                        }
+                        printf("Memory attached at %X\n",(int) field);
+
+                        myuSHY->flag=-6;
+                        break;
+                    }
+                    case 6:{
+                        printf("6. Eltern:\n\tGetting Field...\n");
+                        int *pf = field;
+                        for (int k = 0; k < myuSHY->width*myuSHY->height; k++) {
+                            printf(" %d ",*(pf++));
+                        }
+                        myuSHY->flag=-7;
+                        break;
+                    }
                     case 42:{
+                        running=0;
+                        if (shmdt(shared_memory) == -1) {
+                            fprintf(stderr, "shmdt failed\n");
+                            exit(EXIT_FAILURE);
+                        }
+
+                        if (shmctl(shmid, IPC_RMID, 0) == -1) {
+                            fprintf(stderr, "shmctl(IPC_RMID) failed\n");
+                            exit(EXIT_FAILURE);
+                        }
+                        //TODO shmdt...
+                        /*if (shmdt(iPlay) == -1) {
+                            fprintf(stderr, "shmdt failed\n");
+                            exit(EXIT_FAILURE);
+                        }
+
+                        if (shmctl(p_shm_id, IPC_RMID, 0) == -1) {
+                            fprintf(stderr, "shmctl(IPC_RMID) failed\n");
+                            exit(EXIT_FAILURE);
+                        }*/
                         running=0;
                         break;
                     }
@@ -100,16 +193,13 @@ int think(){
     }
     else{
         printf("Kindprozess\n");
+        printf("Writing PID...\n");
+        myuSHY->PIDP = getpid();
+        printf("\tPID Child: %d\n",myuSHY->PIDP);
 
-        ret = connectToServer();
-
-        if(ret==-1){
-            //TODO return EXIT_FAILURE abfangen & uSHY->flag auf 42 setzen zum beenden d. Programms
-        }
-
-        /*int runningc=1;
+        //int runningc=1;
         void *shared_memory_c = (void*)0;
-        SHM *mySHMc;
+        uSHY *myuSHYc;
         int shmidc;
         int mykeyc=getuid();
 
@@ -127,110 +217,20 @@ int think(){
         }
 
         printf("Memory attached at %X\n",(int) shared_memory_c);
+        myuSHYc = (uSHY*) shared_memory_c;
 
-        mySHMc = (SHM*) shared_memory_c;
-        while (runningc){
-            while(mySHMc->flag>0){
-                sleep(1);
-                //printf("Waiting for parent...\n");
-                printf("\n");
-            }
-            switch (mySHMc->flag){
-                case -1:{
-                    printf("1.Kind\n\tWriting Height...\n");
-                    //mySHMc->height=8;
-                    mySHMc->flag=1;     //For 1st Step Parent
-                    break;
-                }
-                case -2:{
-                    printf("2.Kind\n\tWriting Width...\n");
-                    //mySHMc->width=8;
-                    mySHMc->flag=2;     //For 2nd Step Parent
-                    //runningc=0;
-                    break;
-                }
-                case -3:{
-                    printf("3.Kind\n\tWriting Field...\n");
-                    for (int h = 0; h < mySHMc->height; h++) {
-                        for (int w = 0; w < mySHMc->width; w++) {
-                            mySHMc->fielda[h*mySHMc->width+w]=1;
-                        }
-                    }
-                    mySHMc->flag=3;
-                    runningc=0;
-                    break;
-                }
-            }
-        }*/
-    }
-    return ret;
-}
-
-
-
-    /*pid_t pid = 0;               // Prozess-ID des Kindes
-    //int ret_code = 0;            // Hilfsvariable zum Speichern von zurueckgegebenen Werten
-    //int fd[2];                   // Dateideskriptor zur Kommunikation mit dem Kindprozess
-
-    //int *shm_ptr;
-    key_t shmKey;
-
-    shmKey = ftok(".", 'x');
-
-    int shm_id = shmget(shmKey, sizeof(myMTS), IPC_CREAT | 0666);
-    if (shm_id < 0){
-        puts("Fehler bei shmget()");
-        return -1;
-    }
-
-    shm_ptr = (int *) shmat(shm_id, NULL, 0);
-
-    if ((int)shm_ptr == -1){
-        puts("Fehler bei shmat()");
-        return -1;
-    }
-
-
-     * Zwei Prozesse, die den Test durchfuehren
-     * => fork() um Kindprozess zu erstellen
-
-    pid = fork();
-    if (pid < 0) {
-        perror ("Fehler bei fork().");
-        exit(EXIT_FAILURE);
-    }
-
-
-     * Elternprozess
-
-    if (pid > 0) {
-        printf("Elternprozess\n");
-        //close(fd[1]);         //Pipe
-        shm1();
-        // Warten auf den Kindprozess
-
-        printf("Auf Kindprozess warten...\n");
-        pid = waitpid(pid, NULL, 0);
-        if (pid < 0) {
-            perror ("Fehler beim Warten auf Kindprozess.");
+        ret = connectToServer();
+        myuSHYc->flag=42;
+        if (shmdt(shared_memory_c) == -1) {
+            fprintf(stderr, "shmdt failed\n");
             exit(EXIT_FAILURE);
         }
 
+        if(ret==-1){
+            //TODO return EXIT_FAILURE abfangen & uSHY->flag auf 42 setzen zum beenden d. Programms
 
+        }
     }
-
-          Kindprozess
-
-    else {
-        printf("Kindprozess\n");
-        printf("Connecting to server...\n");
-        connectToServer();
-                            check = "K->E: Pipe\n";
-                            ret_code = write(fd[1], check, n);
-                            if (ret_code != n) {
-                                perror("Fehler bei write().");
-                                exit(EXIT_FAILURE);
-                            }
-        _exit(EXIT_SUCCESS);
-    }*/
+    return ret;
+}
 

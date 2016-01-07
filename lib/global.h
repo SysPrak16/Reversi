@@ -61,7 +61,24 @@ typedef struct{
     pid_t PIDC;                 //Process ID Child
 
     int flag;                   //For Navigating
+
+    int height;
+    int width;
 }uSHY;
+
+typedef struct{
+    int playernum;                  //The Players Number
+    char playername[BUF_SIZE];      //The Players Name
+    int flag;                       //Player registered 0 for no 1 for yes
+}player_info;
+
+typedef struct{
+    int height;                 //Höhe
+    int width;                  //Breite
+    int *field;                 //Aktuelles Feld
+}gameField;
+
+extern int uSHYflag;
 
 typedef struct{
     int number;                 //Spielernummer
