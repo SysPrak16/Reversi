@@ -132,6 +132,7 @@ The second program is the producer and allows us to enter data for consumers.
     int f_shm_id;           // Shared Memory ID
     key_t f_shm_key;        // Shared Memory Key
     int *field;             // Shared Memory Data
+    int ptrs;               // For Saving the Pointer
 
 
 
@@ -150,7 +151,7 @@ The second program is the producer and allows us to enter data for consumers.
     //Placeholder ID: WAIT
     //TODO: resolve test variables!
     //TEST--Start
-    char play[]="PLAY G1\n";
+    char play[]="PLAY F3\n";
     //TEST--End
     // ID: AoNuBicHhoc
 
@@ -190,6 +191,31 @@ The second program is the producer and allows us to enter data for consumers.
                 return -1;
             } else if (strbeg(lineBuf, INVALID_MOVE)) {
                 printf(INVALID_MOVE_MSG);
+                /*printf("Closing SHM Client...");
+                if (shmdt(shared_memory_c) == -1) {
+                    fprintf(stderr, "shmdt_1 failed at child\n");
+                    exit(EXIT_FAILURE);
+                }
+                if (shmdt(iPlay) == -1) {
+                    fprintf(stderr, "shmdt_p failed at child\n");
+                    exit(EXIT_FAILURE);
+                }
+                if (shmdt(field) == -1) {
+                    fprintf(stderr, "shmdt_f failed at child\n");
+                    exit(EXIT_FAILURE);
+                }
+                if (shmctl(shmidc, IPC_RMID, 0) == -1) {
+                    fprintf(stderr, "shmctl(IPC_RMID)_1 failed at child\n");
+                    exit(EXIT_FAILURE);
+                }
+                if (shmctl(p_shm_id, IPC_RMID, 0) == -1) {
+                    fprintf(stderr, "shmctl(IPC_RMID)_p failed at child\n");
+                    exit(EXIT_FAILURE);
+                }
+                if (shmctl(f_shm_id, IPC_RMID, 0) == -1) {
+                    fprintf(stderr, "shmctl(IPC_RMID)_f failed at child\n");
+                    exit(EXIT_FAILURE);
+                }*/
                 return -1;
             } else if (strbeg(lineBuf, MNM_SERVER)) {
                 if (send(socket_fd, CVERSION, strlen(CVERSION), 0) < 0) {
@@ -319,27 +345,68 @@ The second program is the producer and allows us to enter data for consumers.
                     printf("4.Kind\n\tWriting Height...\n");
                     printf("\tWriting Width...\n");
                     sscanf(lineBuf, "+ FIELD %d,%d", &myuSHYc->width, &myuSHYc->height);
+
+                    //SHM Field
+                    printf("\tInitialising Field SHM...\n");
+                    f_shm_key = ftok(".",'F');
+                    f_shm_id = shmget(f_shm_key,myuSHYc->width*myuSHYc->height*sizeof(int), IPC_CREAT | 0666);
+                    if(f_shm_id < 0){
+                        printf("shmget error\n");
+                        exit(1);
+                    }
+                    field = (int*) shmat(f_shm_id,NULL,0);
+                    if((int) field == -1){
+                        printf("shmat error\n");
+                        exit(1);
+                    }
+                    printf("\tMemory attached at %X\n",(int) field);
+                    ptrs = (int)field;
+                    printf("ptrs: %d\n",ptrs);
+
                     myuSHYc->flag=5;
-                }
-                printf("\tWaiting for parent to read...\n");
-                while(myuSHYc->flag>0){
-                    sleep(1/100);
+                    printf("\tWaiting for parent to read...\n");
+                    while(myuSHYc->flag>0){
+                        sleep(1/100);
+                    }
                 }
             }
             else if (strbeg(lineBuf, "+ ") && getField) {
                 int line;
+                //int *fp =field[0];
+                //printf("FP: %d\n",fp);
                 sscanf(lineBuf, "+ %d", &line);
                 //printf("            %d   ",line);                                                 //Just for Testing
-                //TODO Player 0 -> W Player 1 -> B
+                //TODO Testing Player 0 -> W Player 1 -> B ?
                 for (j = 0; j < myMTS.width; j++) {
                     if(lineBuf[4 + j * 2] == 'W') {
-                        myMTS.field[line-1*myMTS.width+j] = 1;
+                        if(myuSHYc->playernum==0) {
+                            myMTS.field[line - 1 * myMTS.width + j] = 1;
+                            //fp[line - 1 * myMTS.width + j] = 1;
+                        }else {
+                            myMTS.field[line - 1 * myMTS.width + j] = 2;
+                            //fp[line-1*myMTS.width+j] = 2;
+                        }
                     }else if(lineBuf[4 + j * 2] == 'B') {
-                        myMTS.field[line-1*myMTS.width+j] = 2;
+                        if(myuSHYc->playernum==0) {
+                            myMTS.field[line - 1 * myMTS.width + j] = 2;
+                            //fp[line-1*myMTS.width+j] = 2;
+                        }else{
+                            myMTS.field[line-1*myMTS.width+j] = 1;
+                            //fp[line-1*myMTS.width+j] = 1;
+                        }
                     }else if(lineBuf[4 + j * 2] == '*') {
                         myMTS.field[line-1*myMTS.width+j] = 0;
+                        //fp[line-1*myMTS.width+j] = 0;
                     }
-                    //printf("%d ",myMTS.field[line-1*myMTS.width+j]);                                  //Just for Testing
+                    //printf("%d ",myMTS.field[line-1*myMTS.width+j]);                                //Just for Testing
+                    //printf("%d\n",line);
+                    *field++=myMTS.field[line-1*myMTS.width+j];           //TODO Fix: Working just the 1st time
+                    //printf("*Field: %d\n",(int)field);
+                    //fp[line-1*myMTS.width+j]=myMTS.field[line-1*myMTS.width+j];
+                    //printf("%d ",field[line-1*myMTS.width+j]);                                //Just for Testing
+
+                    //fp[line-1*myMTS.width+j] = j;
+
                     //TEST
                 }
                 //printf("\n");                                                                     //Just for Testing
@@ -353,34 +420,15 @@ The second program is the producer and allows us to enter data for consumers.
                     printf("C: %.*s", n, CTHINK);
                 }
                 if(myuSHYc->flag==-6){
-                    //SHM Field
-                    printf("Initialising Field SHM...\n");
-                    f_shm_key = ftok(".",'F');
-                    f_shm_id = shmget(f_shm_key,myuSHYc->width*myuSHYc->height*sizeof(int), IPC_CREAT | 0666);
-                    if(f_shm_id < 0){
-                        printf("shmget error\n");
-                        exit(1);
-                    }
-                    field = (int*) shmat(f_shm_id,NULL,0);
-                    if((int) field == -1){
-                        printf("shmat error\n");
-                        exit(1);
-                    }
-                    printf("Memory attached at %X\n",(int) field);
-
-                    //TODO Writing Field
-                    int *fp=field;
-                    //int test[64]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-                    for (int k = 0; k < myuSHYc->width*myuSHYc->height; k++) {
-                        *fp++ = myMTS.field[k];
-                        //printf(" %d ",test[k]);
-                    }
+                    printf("6.Kind:\n\tWriting Field...\n");
+                    //printf("*Field: %d\n",(int)field);                            //Just for Testing
+                    field =(int*)ptrs;
+                    //printf("*Field: %d\n",(int)field);                            //Just for Testing
                     myuSHYc->flag=6;
                 }
                 printf("\tWaiting for parent to read...\n");
                 while(myuSHYc->flag>0){
-                    sleep(1);
-                    printf("Warte..\n");
+                    sleep(1/100);
                 }
             } else if (strbeg(lineBuf, "+ OKTHINK")) {
                 //TODO PLAY -- MOVE
@@ -401,9 +449,4 @@ The second program is the producer and allows us to enter data for consumers.
             lineBuf = strtok(NULL, splitToken);
         }
     }
-    if (shmdt(shared_memory_c) == -1) {
-        fprintf(stderr, "shmdt failed\n");
-        exit(EXIT_FAILURE);
-    }
-    return 0;
 }

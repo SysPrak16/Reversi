@@ -54,7 +54,7 @@ int think(){
 
     myuSHY = (uSHY*)shared_memory;
 
-    myuSHY->flag=-1;     //For 1st step Child
+    myuSHY->flag=-1;        //For 1st step Child
 
     pid_t pid = 0;
 
@@ -136,9 +136,9 @@ int think(){
                         printf("5.Eltern\n\tGetting Height...\n\tHeight: %d\n",myuSHY->height);
                         printf("\tGetting Width...\n\tWidth: %d\n",myuSHY->width);
                         //SHM Field
-                        printf("Initialising Field SHM...\n");
+                        printf("\tInitialising Field SHM...\n");
                         f_shm_key = ftok(".",'F');
-                        f_shm_id = shmget(f_shm_key,myuSHY->width*myuSHY->height*sizeof(int), IPC_CREAT | 0666);
+                        f_shm_id = shmget(f_shm_key,myuSHY->width*myuSHY->height*sizeof(int),0666);
                         if(f_shm_id < 0){
                             printf("shmget error\n");
                             exit(1);
@@ -148,41 +148,81 @@ int think(){
                             printf("shmat error\n");
                             exit(1);
                         }
-                        printf("Memory attached at %X\n",(int) field);
+                        printf("\tMemory attached at %X\n",(int) field);
 
                         myuSHY->flag=-6;
                         break;
                     }
                     case 6:{
                         printf("6. Eltern:\n\tGetting Field...\n");
+
+                        char row;
                         int *pf = field;
-                        for (int k = 0; k < myuSHY->width*myuSHY->height; k++) {
-                            printf(" %d ",*(pf++));
+                        printf("\n\t");
+                        for (int i = 0; i < myuSHY->height+4; i++) {
+                            row = 'A';
+                            if(i==0||i==myuSHY->height+3)
+                                printf("   ");
+                            else if(i==1||i==myuSHY->height+2)
+                                printf("  +");
+                            else
+                                (i-1>9)?(printf("%d| ",abs(i-myuSHY->height-2))):(printf(" %d| ",abs(i-myuSHY->height-2)));
+                            for (int j = 0; j < myuSHY->height; j++) {
+                                if(i==0||i==myuSHY->height+3)
+                                    printf(" %c",row++);
+                                else if(i==1||i==myuSHY->height+2)
+                                    printf("--");
+                                else{
+                                    if(*pf == 1) {                                          // It's our's !
+                                        if(myuSHY->playernum==0)                            // We are Player 0
+                                            printf("W ");                                   // So it's a White one
+                                        else                                                // We are Player 1
+                                            printf("B ");                                   // So it's a Black one
+                                    }else if(*pf == 2) {                                    // It's the other's !
+                                        if(iPlay->playernum==0)                             // They are Player 0
+                                            printf("W ");                                   // So it's a White one
+                                        else                                                // They are Player 1
+                                            printf("B ");                                   // So it's a Black one
+                                    }else if(*pf == 0)                                      // Wait...
+                                        printf("* ");                                       // There is nothing yet !
+                                    *pf++;
+                                }
+                            }
+                            if(i==0||i==myuSHY->height+3) {
+                            }
+                            else if(i==1||i==myuSHY->height+2){
+                                printf("-+");
+                            }
+                            else
+                                printf("|%d",abs(i-myuSHY->height-2));
+                            printf("\n\t");
                         }
-                        myuSHY->flag=-7;
+                        printf("\n");
+                        myuSHY->flag=-6;
                         break;
                     }
                     case 42:{
-                        running=0;
-                        if (shmdt(shared_memory) == -1) {
+                        //running=0;
+                        printf("Closing SHM Server...");
+                        /*if (shmdt(shared_memory) == -1) {
                             fprintf(stderr, "shmdt failed\n");
                             exit(EXIT_FAILURE);
                         }
 
                         if (shmctl(shmid, IPC_RMID, 0) == -1) {
-                            fprintf(stderr, "shmctl(IPC_RMID) failed\n");
+                            fprintf(stderr, "shmctl(IPC_RMID)_1 failed\n");
                             exit(EXIT_FAILURE);
-                        }
+                        }*/
                         //TODO shmdt...
-                        /*if (shmdt(iPlay) == -1) {
+                        if (shmdt(iPlay) == -1) {
                             fprintf(stderr, "shmdt failed\n");
                             exit(EXIT_FAILURE);
                         }
 
-                        if (shmctl(p_shm_id, IPC_RMID, 0) == -1) {
+                        if (shmctl(f_shm_id, IPC_RMID, 0) == -1) {
                             fprintf(stderr, "shmctl(IPC_RMID) failed\n");
                             exit(EXIT_FAILURE);
-                        }*/
+                        }
                         running=0;
                         break;
                     }
@@ -233,4 +273,3 @@ int think(){
     }
     return ret;
 }
-
