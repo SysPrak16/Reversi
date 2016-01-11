@@ -10,5 +10,14 @@ set(SOURCE_FILES
         main.c
         lib/performConnection.c
         lib/performConnection.h
-        README.md lib/appParamHandler.c lib/global.h lib/fileIOHandler.c lib/fileIOHandler.h lib/errorHandler.c lib/thinker.c lib/thinker.h lib/connector.c lib/connector.h)
+        README.md
+        lib/appParamHandler.c
+        lib/global.h
+        lib/fileIOHandler.c
+        lib/fileIOHandler.h
+        lib/errorHandler.c
+        lib/thinker.c
+        lib/thinker.h
+        lib/connector.c
+        lib/connector.h)
 add_executable(Reversi ${SOURCE_FILES})
