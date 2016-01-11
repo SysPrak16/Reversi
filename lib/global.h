@@ -35,15 +35,56 @@
 #define NO_FREE_PLAYER_MSG "ERROR: No free computer player found! Exiting!"
 #define NO_GAME_ERROR "- exiting"
 #define NO_GAME_ERROR_MSG "ERROR: No game found for this ID! Exiting!"
+
+#include <sys/types.h>
+#include <sys/ipc.h>
 /*
  * @NAME MTS (Memory to Share)
  *
  */
+
+#define TEXT_SZ 2048            //Testing
+
 typedef struct{
     int *field;
     int height;
     int width;
+    int written_by_you;         //Testing
+    char some_text[TEXT_SZ];    //Testing
 }MTS;
+
+typedef struct{
+    char gamename[BUF_SIZE];    //Spielname
+    int playernum;              //Spielernummer
+    int players;                //Anzahl Spieler
+    pid_t PIDP;                 //Process ID Parent
+    pid_t PIDC;                 //Process ID Child
+
+    int flag;                   //For Navigating
+
+    int height;
+    int width;
+}uSHY;
+
+typedef struct{
+    int playernum;                  //The Players Number
+    char playername[BUF_SIZE];      //The Players Name
+    int flag;                       //Player registered 0 for no 1 for yes
+}player_info;
+
+typedef struct{
+    int height;                 //Höhe
+    int width;                  //Breite
+    int *field;                 //Aktuelles Feld
+}gameField;
+
+extern int uSHYflag;
+
+typedef struct{
+    int number;                 //Spielernummer
+    char name[BUF_SIZE];        //Spielername
+    int flag;                   //Ready Flag
+}player;
 
 /*
  * AI Types:
