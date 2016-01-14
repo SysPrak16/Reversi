@@ -8,10 +8,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
-#include <stdio.h>
 
 //global variable
 config_t config;
+
+FILE* openFile(char* name) {
+    char dateiName[256];
+    FILE *datei = NULL;
+
+    if (name == NULL) {
+        printf("Bitte gib einen Dateinamen an: ");
+        scanf("%s", dateiName);
+    } else {
+        strncpy(dateiName, name, 255*sizeof(char));
+    }
+
+    if ((datei=fopen(dateiName,"r")) == NULL) {
+        printf("Fehler beim Oeffnen der Datei!\n");
+    }
+
+    return datei;
+}
 
 int readCfg(const char *filename) {
     /*
@@ -20,10 +37,9 @@ int readCfg(const char *filename) {
      */
     FILE *cfgFile = fopen(filename, "r");
     if (!cfgFile) {
-       return fileNotFoundError();
+        perror("Fehler: fopen");
+        return -1;
     }
-
-
 
     /*
      * create regular expression

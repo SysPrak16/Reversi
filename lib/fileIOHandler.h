@@ -4,6 +4,9 @@
 
 #ifndef REVERSI_FILEIOHANDLER_H
 #define REVERSI_FILEIOHANDLER_H
+
+#include <stdio.h>
+
 #define CONFIG_ENTRY "^[[:space:]]*([[:alnum:]]*){1}[[:space:]]*+=[[:space:]]*(.*){1}\\n$"
 
 /*
@@ -13,5 +16,6 @@
  */
 int readCfg(const char *filename);
 void initconfig();
+FILE* openFile(char* name);
 
 #endif //REVERSI_FILEIOHANDLER_H

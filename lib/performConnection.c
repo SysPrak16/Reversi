@@ -151,7 +151,7 @@ The second program is the producer and allows us to enter data for consumers.
     //Placeholder ID: WAIT
     //TODO: resolve test variables!
     //TEST--Start
-    char play[]="PLAY F3\n";
+    char play[]="PLAY F6\n";
     //TEST--End
     // ID: AoNuBicHhoc
 

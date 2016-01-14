@@ -8,8 +8,8 @@
 
 
 #define errorString "\0"
-/* @param: int argc, char *argv[]: Kommandozeilenparrameter aus main()
- * @ret: -1 bei Fehler (non valid Input numer) wrongParamError
+/* @param: int argc, char *argv[]: Kommandozeilenparameter aus main()
+ * @ret: -1 bei Fehler (non valid Input nummer) wrongParamError
  * @ret:
  *
  * */

@@ -9,25 +9,27 @@
 #include <getopt.h>
 #include "lib/appParamHandler.h"
 #include "lib/fileIOHandler.h"
-#include "lib/connector.h"
 #include "lib/thinker.h"
-#include "lib/global.h"
 //#include "lib/global.h"
 
 //global variable
 extern config_t config;
+extern int opterr;
 
 int main( int argc, char* argv[] )
 {
+    opterr=0;
 	char *gameID;
+    char *test="ERROR";
 	gameID="ERROR";
 	initconfig();
     //gameID=malloc(sizeof(char)*11);
-	const char *configFile, *tmpCfgFile;
-    configFile="client.conf";
+	char tmpCfgFile[256]="ERROR";
+    char configFile[256];
+    strcpy(configFile, DEFAULT_CONFIG);
     //char *tempID;
 	int ret;
-	while ((ret=getopt(argc, argv, "g:c")) != -1) {
+	while ((ret=getopt(argc, argv, "g:f")) != -1) {
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
@@ -35,28 +37,28 @@ int main( int argc, char* argv[] )
                 //gameID=checkParam(argc, argv);
 
 				break;
-			case 'c':
-                tmpCfgFile=optarg;
+			case 'f':
+                openFile(optarg);
+                /*strncpy(tmpCfgFile, optarg, sizeof(tmpCfgFile));
+                printf("%s", tmpCfgFile);
+                //tmpCfgFile=optarg;
                 if (readCfg(tmpCfgFile)>0){
-                    configFile=tmpCfgFile;
                     printf("Config File initialised\n");
                 }
                 else{
-                    printf("Initialising from default.\n");
-                }
+                    printf("ERROR: Reading from provided file (%s) failed!\nInitialising from default.\n", tmpCfgFile);
+                }*/
 				break;
-			default:
-				//TODO: Fehler
-				break;
+			//default:
 		}
 	}
     config.port=1357;
     strcpy(config.hostname,DEF_HOSTNAME);
 	if (strcmp(gameID,"ERROR")==0){
-        printf("ERROR: Sie haben keine GameID angegeben!\n");
+        printf(NO_ID_ERROR);
         char buf[256];
         do{
-            printf("Bitte geben sie die 11 stellige Game-ID an: \n");
+            printf(ENTER_GAME_ID);
             scanf("%s",buf);
         }while(strlen(buf)!=11);
         gameID=buf;

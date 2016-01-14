@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include "thinker.h"
 #include "connector.h"
-#include "global.h"
 
 extern MTS myMTS;
 
@@ -159,7 +158,8 @@ int think(){
                         char row;
                         int *pf = field;
                         printf("\n\t");
-                        for (int i = 0; i < myuSHY->height+4; i++) {
+                        int i,j= 0;
+                        for (i; i < myuSHY->height+4; i++) {
                             row = 'A';
                             if(i==0||i==myuSHY->height+3)
                                 printf("   ");
@@ -167,7 +167,7 @@ int think(){
                                 printf("  +");
                             else
                                 (i-1>9)?(printf("%d| ",abs(i-myuSHY->height-2))):(printf(" %d| ",abs(i-myuSHY->height-2)));
-                            for (int j = 0; j < myuSHY->height; j++) {
+                            for (j; j < myuSHY->height; j++) {
                                 if(i==0||i==myuSHY->height+3)
                                     printf(" %c",row++);
                                 else if(i==1||i==myuSHY->height+2)

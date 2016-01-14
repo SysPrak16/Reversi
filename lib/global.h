@@ -28,13 +28,24 @@
 #define CON_TIMEOUT_ERR_MSG "ERROR: Server connection timeout!\n"
 #define GAMEKIND_ERROR_MSG "ERRR: Wrong game type!\n"
 #define VERSION_ERROR "- We implement protocol version 1.0"
-#define VERSION_ERROR_MSG "ERROR: Wrong client version detected! Expected version 1.x!"
+#define VERSION_ERROR_MSG "ERROR: Wrong client version detected! Expected version 1.x!\n"
 #define INVALID_MOVE "- Invalid position."
-#define INVALID_MOVE_MSG "ERROR: Invalid move! You died!"
+#define INVALID_MOVE_MSG "ERROR: Invalid move! You died!\n"
 #define NO_FREE_PLAYER "- No free computer player found for that game - exiting"
-#define NO_FREE_PLAYER_MSG "ERROR: No free computer player found! Exiting!"
+#define NO_FREE_PLAYER_MSG "ERROR: No free computer player found! Exiting!\n"
 #define NO_GAME_ERROR "- exiting"
-#define NO_GAME_ERROR_MSG "ERROR: No game found for this ID! Exiting!"
+#define NO_GAME_ERROR_MSG "ERROR: No game found for this ID! Exiting!\n"
+
+/*
+ * Defaults
+ */
+#define DEFAULT_CONFIG "default.conf"
+
+/*
+ * Error Messages
+ */
+#define NO_ID_ERROR "ERROR: No GameID has been provided!\n"
+#define ENTER_GAME_ID "Please enter your 11 digit GameID: \n"
 
 #include <sys/types.h>
 #include <sys/ipc.h>
