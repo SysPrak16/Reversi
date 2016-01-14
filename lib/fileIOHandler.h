@@ -16,6 +16,6 @@
  */
 int readCfg(const char *filename);
 void initconfig();
-FILE* openFile(char* name);
+FILE* openFile(char *name);
 
 #endif //REVERSI_FILEIOHANDLER_H

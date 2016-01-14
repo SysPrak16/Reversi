@@ -29,7 +29,7 @@ int main( int argc, char* argv[] )
     strcpy(configFile, DEFAULT_CONFIG);
     //char *tempID;
 	int ret;
-	while ((ret=getopt(argc, argv, "g:f")) != -1) {
+	while ((ret=getopt(argc, argv, "g:c")) != -1) {
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
@@ -37,7 +37,7 @@ int main( int argc, char* argv[] )
                 //gameID=checkParam(argc, argv);
 
 				break;
-			case 'f':
+			case 'c':
                 openFile(optarg);
                 /*strncpy(tmpCfgFile, optarg, sizeof(tmpCfgFile));
                 printf("%s", tmpCfgFile);

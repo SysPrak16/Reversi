@@ -12,7 +12,7 @@
 //global variable
 config_t config;
 
-FILE* openFile(char* name) {
+FILE* openFile(char *name) {
     char dateiName[256];
     FILE *datei = NULL;
 
