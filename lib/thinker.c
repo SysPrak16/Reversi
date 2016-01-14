@@ -30,29 +30,29 @@ int think(){
     int running=1;
 
     //SHM
-    void *shared_memory=(void*)0;
+    //void *shared_memory=(void*)0;
     uSHY *myuSHY;
     int shmid;
     int mykey = getuid();
 
     srand((unsigned int)getpid());
 
-    shmid = shmget((key_t)mykey, sizeof(SHM)/*2048*/,0666| IPC_CREAT);
+    shmid = shmget((key_t)mykey, sizeof(SHM),0666| IPC_CREAT);
 
     if(shmid==-1){
         perror("Fehler bei shmget().");
         exit(EXIT_FAILURE);
     }
 
-    shared_memory = shmat(shmid,(void*)0,0);
-    if(shared_memory==(void*)-1){
+    myuSHY = (uSHY *) shmat(shmid,(void*)0,0);
+    if(myuSHY==(uSHY*)-1){
         perror("Fehler bei shmat.");
         exit(EXIT_FAILURE);
     }
 
-    printf("Memory attached at %X\n",(int)shared_memory);
+    printf("Memory attached at %X\n",(int)myuSHY);
 
-    myuSHY = (uSHY*)shared_memory;
+    //myuSHY = (uSHY*)shared_memory;
 
     myuSHY->flag=-1;        //For 1st step Child
 
@@ -201,9 +201,9 @@ int think(){
                         myuSHY->flag=-6;
                         break;
                     }
-                    case 42:{
+                    /*case 42*/default:{
                         //running=0;
-                        printf("Closing SHM Server...");
+                        printf("Closing SHM Server...\n");
                         /*if (shmdt(shared_memory) == -1) {
                             fprintf(stderr, "shmdt failed\n");
                             exit(EXIT_FAILURE);

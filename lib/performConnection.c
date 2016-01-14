@@ -99,7 +99,7 @@ The second program is the producer and allows us to enter data for consumers.
 
 
     //int runningc=1;
-    void *shared_memory_c = (void*)0;
+    //void *shared_memory_c = (void*)0;
     uSHY *myuSHYc;
     int shmidc;
     int mykeyc=getuid();
@@ -111,22 +111,22 @@ The second program is the producer and allows us to enter data for consumers.
         exit(EXIT_FAILURE);
     }
 
-    shared_memory_c = shmat(shmidc,(void*)0,0);
-    if(shared_memory_c==(void*)-1){
+    myuSHYc = (uSHY*) shmat(shmidc,(void*)0,0);
+    if(myuSHYc==(uSHY*)-1){
         perror("Fehler bei shmat.");
         exit(EXIT_FAILURE);
     }
 
-    printf("Memory attached at %X\n",(int) shared_memory_c);
-    myuSHYc = (uSHY*) shared_memory_c;
+    printf("Memory attached at %X\n",(int) myuSHYc);
+    //myuSHYc = (uSHY*) shared_memory_c;
 
 
 
 
     //SHM Players
-    int p_shm_id; /* shared memory ID */
-    key_t p_shm_key;
-    player_info *iPlay;
+    int p_shm_id;           // Shared Memory ID
+    key_t p_shm_key;        // Shared Memory Key
+    player_info *iPlay;     // Shared Memory Data
 
     //SHM for Field
     int f_shm_id;           // Shared Memory ID
@@ -422,7 +422,7 @@ The second program is the producer and allows us to enter data for consumers.
                 if(myuSHYc->flag==-6){
                     printf("6.Kind:\n\tWriting Field...\n");
                     //printf("*Field: %d\n",(int)field);                            //Just for Testing
-                    field =(int*)ptrs;
+                    field =(int*)ptrs;  //TODO
                     //printf("*Field: %d\n",(int)field);                            //Just for Testing
                     myuSHYc->flag=6;
                 }
@@ -449,4 +449,5 @@ The second program is the producer and allows us to enter data for consumers.
             lineBuf = strtok(NULL, splitToken);
         }
     }
+    return 0;       //fallback
 }
