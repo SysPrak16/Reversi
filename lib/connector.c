@@ -9,12 +9,8 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 //#include "prologue.h"
 #include "performConnection.h"
-#include "global.h"
 
 extern config_t config;
 extern MTS myMTS;
@@ -43,7 +39,7 @@ int connectToServer()
      * Thus, this line initializes serv_addr to zeros.
      */
 
-    bcopy((char *)server->h_addr,
+    bcopy((char *)server->h_addr_list[0],
           (char *)&serv_addr.sin_addr.s_addr,
           server->h_length);
 
