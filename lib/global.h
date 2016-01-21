@@ -46,6 +46,8 @@
  */
 #define NO_ID_ERROR "ERROR: No GameID has been provided!\n"
 #define ENTER_GAME_ID "Please enter your 11 digit GameID: \n"
+#define SHM_ERROR "ERROR: Could not attach the shared memory!"
+#define SIG_ERROR "ERROR: kill()"
 
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -83,19 +85,58 @@ typedef struct{
     int flag;                       //Player registered 0 for no 1 for yes
 }player_info;
 
-typedef struct{
-    int height;                 //Höhe
-    int width;                  //Breite
-    int *field;                 //Aktuelles Feld
-}gameField;
-
 extern int uSHYflag;
 
+
+
+
+
+/*
+ * NEW SHARED MEMORY
+ */
 typedef struct{
     int number;                 //Spielernummer
     char name[BUF_SIZE];        //Spielername
     int flag;                   //Ready Flag
-}player;
+}player_t;
+
+typedef struct{
+    int height;                 //Höhe
+    int width;                  //Breite
+    int *field;                 //Aktuelles Feld
+}gameField_t;
+
+typedef struct {
+    int         in;
+    int         out;
+} pipe_t;
+
+typedef struct{
+    char gamename[BUF_SIZE];    //Spielname
+    int playerCount;            //Anzahl Spieler
+    int playerID;               //client player ID
+    int gameOver;               //Gameover!
+    int movetime;
+    pipe_t pipe;
+
+    pid_t processIDParent;      //Process ID Parent
+    pid_t processIDChild;       //Process ID Child
+
+    //==========Shared Memory segment IDs START =========//
+    int shmid_gameData;         //own ID
+    int shmid_field;            //field
+    int shmid_players;           //player info
+    //==========Shared Memory segment IDs END ==========//
+
+    int thinkerMakeMove;        //signal
+} gameData_t;
+
+gameData_t *gameData;
+
+/*
+ * NEW SHARED MEMORY ENDS
+ */
+
 
 /*
  * AI Types:
@@ -110,7 +151,6 @@ typedef struct{
     unsigned short port;
     char hostname[256];
     int aiType;
-    MTS field;
 }config_t;
 
 #endif //REVERSI_GLOBAL_H

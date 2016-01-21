@@ -16,44 +16,42 @@
 extern config_t config;
 extern int opterr;
 
+void initDefault(){
+    config.port=DEF_PORTNUMBER;
+    strcpy(config.hostname,DEF_HOSTNAME);
+}
+
 int main( int argc, char* argv[] )
 {
     opterr=0;
+    int initFlag=-1;
 	char *gameID;
-    char *test="ERROR";
 	gameID="ERROR";
 	initconfig();
-    //gameID=malloc(sizeof(char)*11);
-	char tmpCfgFile[256]="ERROR";
+    char *tmpCfgFile=malloc(sizeof(char)*256);
     char configFile[256];
     strcpy(configFile, DEFAULT_CONFIG);
-    //char *tempID;
 	int ret;
-	while ((ret=getopt(argc, argv, "g:c")) != -1) {
+	while ((ret=getopt(argc, argv, "g:c:")) != -1) {
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
                 strcpy(config.gameID, gameID);
-                //gameID=checkParam(argc, argv);
-
 				break;
 			case 'c':
-                openFile(optarg);
-                /*strncpy(tmpCfgFile, optarg, sizeof(tmpCfgFile));
                 printf("%s", tmpCfgFile);
-                //tmpCfgFile=optarg;
-                if (readCfg(tmpCfgFile)>0){
+                tmpCfgFile=optarg;
+                if (readCfg(tmpCfgFile)>-1){
                     printf("Config File initialised\n");
                 }
                 else{
                     printf("ERROR: Reading from provided file (%s) failed!\nInitialising from default.\n", tmpCfgFile);
-                }*/
+                    initDefault();
+                    initFlag=1;
+                }
 				break;
-			//default:
 		}
 	}
-    config.port=1357;
-    strcpy(config.hostname,DEF_HOSTNAME);
 	if (strcmp(gameID,"ERROR")==0){
         printf(NO_ID_ERROR);
         char buf[256];
@@ -64,8 +62,11 @@ int main( int argc, char* argv[] )
         gameID=buf;
         strcpy(config.gameID, gameID);
     }
-	printf("Your Game-ID: %s\n", config.gameID);
-    return think();
-	/*connectToServer(DEF_PORTNUMBER, DEF_HOSTNAME); //TODO: PORTNUMMER und DEF_HOSTNAME momentan überflüssig, da in prologue.c definiert
-	return 0;*/
+    printf("You are playing Reversi.\n");
+    printf("\tYour Game-ID: %s\n", config.gameID);
+    if(initFlag<0){
+        printf("\tNo external configuration provided, initialising from default...\n");
+        initDefault();
+    }
+    return think1();
 }

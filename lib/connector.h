@@ -8,6 +8,11 @@
 #include "global.h"
 
 /*
+ * Initialises the memory values
+ */
+void initgameData();
+
+/*
  * Creates all necessary stuff to open and establish connection to the server.
  */
 int connectToServer();

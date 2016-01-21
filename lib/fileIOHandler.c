@@ -3,7 +3,6 @@
 //
 
 #include "fileIOHandler.h"
-#include "errorHandler.h"
 #include "global.h"
 #include <stdlib.h>
 #include <string.h>
@@ -12,22 +11,8 @@
 //global variable
 config_t config;
 
-FILE* openFile(char *name) {
-    char dateiName[256];
-    FILE *datei = NULL;
-
-    if (name == NULL) {
-        printf("Bitte gib einen Dateinamen an: ");
-        scanf("%s", dateiName);
-    } else {
-        strncpy(dateiName, name, 255*sizeof(char));
-    }
-
-    if ((datei=fopen(dateiName,"r")) == NULL) {
-        printf("Fehler beim Oeffnen der Datei!\n");
-    }
-
-    return datei;
+void unknownKeyError(char *error){
+    fprintf(stderr, "ERROR: Unknown parameter '%s', ignoring it!\n", error);
 }
 
 int readCfg(const char *filename) {
@@ -37,7 +22,7 @@ int readCfg(const char *filename) {
      */
     FILE *cfgFile = fopen(filename, "r");
     if (!cfgFile) {
-        perror("Fehler: fopen");
+        perror("ERROR: Could not open the file!");
         return -1;
     }
 

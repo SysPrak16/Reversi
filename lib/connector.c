@@ -9,11 +9,21 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <string.h>
 //#include "prologue.h"
 #include "performConnection.h"
 
 extern config_t config;
-extern MTS myMTS;
+
+void initgameData()
+{
+    memset(&gameData[0], 0, sizeof(gameData_t));
+    gameData->shmid_gameData = -1;
+    gameData->shmid_field= -1;
+    gameData->shmid_players= -1;
+    gameData->thinkerMakeMove=-1;
+}
+
 
 int connectToServer()
 {
