@@ -13,7 +13,7 @@ char* convertMove(char * spielzug, int position, int groesse);
 /*
 	returns a valid move with included random AI
 */
-int gueltigeZuege(int feld[], int groesse);
+int gueltigerZug(int feld[], int groesse);
 
 /*
  * Think() method.
