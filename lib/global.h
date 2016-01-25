@@ -4,7 +4,7 @@
 
 #ifndef REVERSI_GLOBAL_H
 #define REVERSI_GLOBAL_H
-#define BUF_SIZE 512
+#define BUF_SIZE 1024
 
 #define DEF_GAMEKINDNAME "Reversi"
 #define DEF_PORTNUMBER 1357
@@ -46,50 +46,13 @@
  */
 #define NO_ID_ERROR "ERROR: No GameID has been provided!\n"
 #define ENTER_GAME_ID "Please enter your 11 digit GameID: \n"
-#define SHM_ERROR "ERROR: Could not attach the shared memory!"
-#define SIG_ERROR "ERROR: kill()"
+#define SHM_ERROR "ERROR: Could not attach the shared memory!\n"
+#define SIG_ERROR "ERROR: kill()\n"
+#define FATAL_ERROR "ERROR: FATAL EXCEPTION!"
+#define DETATCH_ERROR "ERROR: Could not detach the Shared memory segment!\n"
 
 #include <sys/types.h>
 #include <sys/ipc.h>
-/*
- * @NAME MTS (Memory to Share)
- *
- */
-
-#define TEXT_SZ 2048            //Testing
-
-typedef struct{
-    int *field;
-    int height;
-    int width;
-    int written_by_you;         //Testing
-    char some_text[TEXT_SZ];    //Testing
-}MTS;
-
-typedef struct{
-    char gamename[BUF_SIZE];    //Spielname
-    int playernum;              //Spielernummer
-    int players;                //Anzahl Spieler
-    pid_t PIDP;                 //Process ID Parent
-    pid_t PIDC;                 //Process ID Child
-
-    int flag;                   //For Navigating
-
-    int height;
-    int width;
-}uSHY;
-
-typedef struct{
-    int playernum;                  //The Players Number
-    char playername[BUF_SIZE];      //The Players Name
-    int flag;                       //Player registered 0 for no 1 for yes
-}player_info;
-
-extern int uSHYflag;
-
-
-
-
 
 /*
  * NEW SHARED MEMORY
@@ -142,6 +105,7 @@ gameData_t *gameData;
  * AI Types:
  */
 #define AI_RAND 0
+
 /*
  * Struct, which represents the config file types
  */

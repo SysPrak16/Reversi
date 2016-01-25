@@ -17,38 +17,39 @@
 //extern MTS myMTS;
 extern config_t config;
 
+/*
+ * Cleanup process
+ */
 
-typedef struct {
-    int *field;
-    int height;
-    int width;
-    int flag;
-    int fielda[8*8];
-}SHM;
+int cleanupGameData(){
+    printf("Reached: cleanupGameData()\n");
+    if(shmctl (gameData->shmid_gameData, IPC_RMID, NULL)<0)
+    {
+        perror(DETATCH_ERROR);
+        return -1;
+    }
+    printf("All memories retconed!\n");
+    return 0;
+}
 
 /*
  * datahandler for signal call:
  */
 void handler(int parameter) {
-    if (parameter == SIGUSR1 && gameData->thinkerMakeMove) {
+    if (parameter == SIGUSR1 && gameData->thinkerMakeMove==1) {
         gameData->thinkerMakeMove = -1;
         printf("%s\n",gameData->gamename);
         char move[4];
         memset(move, 0, sizeof(move));
-        switch (config.aiType){
-            case AI_RAND:
-                //TODO Move randomly
-                break;
-            case 1:
-                //TODO move
-                break;
-            default:
-                //TODO Random move
-                break;
-        }
         write(gameData->pipe.out, move, 4);
         //TODO: draw the board
         //TODO: drawBoard();
+    } else{
+        printf("Reached: cleanupGameData\n\tID to detach: %i\n", gameData->shmid_gameData);
+        if(gameData->thinkerMakeMove<=0) {
+            //perror(FATAL_ERROR);
+            cleanupGameData();
+        }
     }
 }
 
@@ -106,7 +107,7 @@ int think1()
         int connectorStatus;
         waitpid(pid, &connectorStatus, 0);
     }
-    return 1;
+    return EXIT_SUCCESS;
 }
 
 
@@ -271,7 +272,7 @@ char* convertMove(char * spielzug, int position, int groesse){
     return spielzug;
 }
 
-int gueltigeZuege(int *feld, int groesse){
+int gueltigerZug(int *feld, int groesse){
     int i, n, gain, sizeZuege, zug;
 
     int * zuege = malloc(groesse*groesse * sizeof(int));

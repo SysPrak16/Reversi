@@ -10,15 +10,6 @@
 #include <sys/shm.h>
 #include <signal.h>
 
-typedef struct {
-    int *field;
-    int height;
-    int width;
-    int flag;
-    int fielda[8*8];
-}SHM;
-
-MTS myMTS;  //global Var for sharing in SHM later on
 extern config_t config;
 
 int strbeg(const char *str1, const char *str2)
@@ -28,7 +19,7 @@ int strbeg(const char *str1, const char *str2)
 
 int sendSignalToThinker(){
     printf("Debug Message: Sending Signal to think.\n");
-    if (kill(getppid(), SIGUSR1) != 0)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
+    if (kill(getppid(), SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
         printf("Error sending signal!! SIGUSR1\n");
         return -1;
     }
@@ -36,9 +27,36 @@ int sendSignalToThinker(){
 }
 
 int sendExitToThinker(){
-    if (kill(getppid(), SIGUSR2) != 0)	{	//Sendet das Signal SIGUSR2 an den Elternprozess
+    /*if (kill(getppid(), SIGUSR2) != 0)	{	//Sendet das Signal SIGUSR2 an den Elternprozess
         printf("Error sending signal!! SIGUSR2\n");
         return -1;
+    }*/
+    if (kill(getppid(), SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
+        printf("Error sending signal!! SIGUSR1\n");
+        return -1;
+    }
+    return 0;
+}
+
+int cleanupSharedMemories(){
+    printf("Reached: cleanupSharedMemories()\n");
+    if (gameData->shmid_players!= NULL){
+        printf("Reached: players\n\tID to detach: %i\n", gameData->shmid_players);
+        if(shmctl (gameData->shmid_players, IPC_RMID, NULL)<0){
+            perror(DETATCH_ERROR);
+        }
+        printf("Cleaned: players\n");
+    }
+    if (gameData->shmid_field!= NULL) {
+        printf("Reached: field\n\tID to detach: %i\n", gameData->shmid_field);
+        if (shmctl(gameData->shmid_field, IPC_RMID, NULL) < 0) {
+            perror(DETATCH_ERROR);
+        }
+        printf("Cleaned: field\n");
+    }
+    printf("Reached: signal thinker()\n");
+    if(sendExitToThinker()==-1){
+        perror(DETATCH_ERROR);
     }
     return 0;
 }
@@ -91,18 +109,23 @@ int performConnection(int socket_fd)
             fprintf(stdout, "S: %s\n", lineBuf);
             if (strbeg(lineBuf, CON_TIMEOUT)) {
                 printf(CON_TIMEOUT_ERR_MSG);
+                cleanupSharedMemories();
                 return -1;
             } else if (strbeg(lineBuf, VERSION_ERROR)) {
                 printf(VERSION_ERROR_MSG);
+                cleanupSharedMemories();
                 return -1;
             } else if (strbeg(lineBuf, NO_FREE_PLAYER)) {
                 printf(NO_FREE_PLAYER_MSG);
+                cleanupSharedMemories();
                 return -1;
             } else if (strbeg(lineBuf, NO_GAME_ERROR)) {
                 printf(NO_GAME_ERROR_MSG);
+                cleanupSharedMemories();
                 return -1;
             } else if (strbeg(lineBuf, INVALID_MOVE)) {
                 printf(INVALID_MOVE_MSG);
+                cleanupSharedMemories();
                 return -1;
             } else if (strbeg(lineBuf, MNM_SERVER)) {
                 int versionMajor, versionMinor;
@@ -110,6 +133,7 @@ int performConnection(int socket_fd)
                 //fprintf(stdout, "Server V%d.%d is ready for connection.\n", versionMajor, versionMinor);
                 if (send(socket_fd, CVERSION, strlen(CVERSION), 0) < 0) {
                     puts("Send failed");
+                    cleanupSharedMemories();
                     return -1;
                 } else {
                     //DEBUG: printf("C: %.*s", n, CVERSION);
@@ -117,6 +141,7 @@ int performConnection(int socket_fd)
             } else if (strbeg(lineBuf, VERSION_ACCEPTED)) {
                 if (send(socket_fd, gid, strlen(gid), 0) < 0) {
                     puts("Send failed");
+                    cleanupSharedMemories();
                     return -1;
                 } else {
                     //DEBUG: printf("C: %.*s", n, gid);
@@ -126,12 +151,14 @@ int performConnection(int socket_fd)
                 // Auslesen von GameKind-Name
                 if (!strbeg(lineBuf, "+ PLAYING Reversi")) {
                     printf(GAMEKIND_ERROR_MSG);
+                    cleanupSharedMemories();
                     return -1;
                 } else {
                     if (strbeg(lineBuf, "+ PLAYING Reversi")) {
                         // Senden von Spielernummer
                         if (send(socket_fd, PLAYER1, strlen(PLAYER1), 0) < 0) {
                             puts("Send failed");
+                            cleanupSharedMemories();
                             return -1;
                         } else {
                             //DEBUG: printf("C: %.*s", n, PLAYER1);
@@ -140,6 +167,7 @@ int performConnection(int socket_fd)
                         n = receiveMessage(socket_fd, lineBuf, sizeof(lineBuf));
                         if (send(socket_fd, PLAYER1, strlen(PLAYER1), 0) < 0) {
                             puts("Send failed");
+                            cleanupSharedMemories();
                             return -1;
                         } else {
                             //DEBUG: printf("C: %.*s", n, PLAYER1);
@@ -159,11 +187,13 @@ int performConnection(int socket_fd)
                 gameData->shmid_players=shmget(IPC_PRIVATE, sizeof(player_t) * gameData->playerCount, IPC_CREAT | 0666);
                 if (gameData->shmid_players == -1) {
                     perror(SHM_ERROR);
+                    cleanupSharedMemories();
                     return -1;
                 }
                 players=shmat(gameData->shmid_players, NULL, 0);
                 if (players == (player_t *) -1) {
                     perror(SHM_ERROR);
+                    cleanupSharedMemories();
                     return -1;
                 }
                 strcpy(players[gameData->playerID].name, clientName);
@@ -187,6 +217,7 @@ int performConnection(int socket_fd)
             } else if (strbeg(lineBuf, "+ WAIT")) {
                 if (send(socket_fd, CWAIT, strlen(CWAIT), 0) < 0) {
                     puts("Send failed");
+                    cleanupSharedMemories();
                     return -1;
                 } else {
                     //DEBUG: printf("C: %.*s", n, CWAIT);
@@ -199,11 +230,13 @@ int performConnection(int socket_fd)
                 gameData->shmid_field=shmget(IPC_PRIVATE, sizeof(gfield), IPC_CREAT | 0666);
                 if (gameData->shmid_field == -1) {
                     perror(SHM_ERROR);
+                    cleanupSharedMemories();
                     return -1;
                 }
                 gfield=shmat(gameData->shmid_field, NULL, 0);
                 if (gfield == (void *) -1) {
                     perror(SHM_ERROR);
+                    cleanupSharedMemories();
                     return -1;
                 }
                 sscanf(lineBuf, "+ FIELD %d,%d", &gfield->width, &gfield->height);
@@ -228,7 +261,7 @@ int performConnection(int socket_fd)
                     }else if(lineBuf[4 + j * 2] == '*') {
                         gfield->field[line-1*gfield->width+j] = 0;
                     }
-                    printf("%d ",gfield->field[line-1*gfield->width+j]);                            //Just for Testing
+                    //printf("%d ",gfield->field[line-1*gfield->width+j]);                            //Just for Testing
                 }
                 if(line==1) {
                     getField = 0;
@@ -236,6 +269,7 @@ int performConnection(int socket_fd)
             } else if (strbeg(lineBuf, "+ ENDFIELD")) {
                 if (send(socket_fd, CTHINK, strlen(CTHINK), 0) < 0) {
                     puts("Send failed");
+                    cleanupSharedMemories();
                     return -1;
                 } else {
                     //DEBUG: printf("C: %.*s", n, CTHINK);
@@ -244,6 +278,8 @@ int performConnection(int socket_fd)
                 gameData->thinkerMakeMove=1;
                 if(sendSignalToThinker()==-1){
                     perror(SIG_ERROR);
+                    cleanupSharedMemories();
+                    return -1;
                 }
             } else if (strbeg(lineBuf, "+ OKTHINK")) {
                 //TODO PLAY -- MOVE
@@ -253,6 +289,7 @@ int performConnection(int socket_fd)
 
                     if (send(socket_fd, move, strlen(move), 0) < 0) {
                         puts("Send failed");
+                        cleanupSharedMemories();
                         return -1;
                     } else {
                         //DEBUG: printf("C: %.*s", n, play);
@@ -260,13 +297,17 @@ int performConnection(int socket_fd)
                 }
 
             } else if (strbeg(lineBuf, "+ QUIT")){
+
                 //TODO:Free memories + signal thinker exit
+                cleanupSharedMemories();
+                return 0;
 
             }
             else {
                 printf("Fehlerhafte Nachricht vom Server\n");
                 //printf("%s\n", lineBuf);
                     //myuSHYc->flag=42;       //Bricht SHM in Eleternprozess ab -> Beenden des Programmes
+                cleanupSharedMemories();
                 return -1;
             }
             i++;
