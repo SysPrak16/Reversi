@@ -90,7 +90,7 @@ typedef struct{
     int shmid_field;            //field
     int shmid_players;           //player info
     //==========Shared Memory segment IDs END ==========//
-
+    gameField_t *fieldAddress;
     int thinkerMakeMove;        //signal
 } gameData_t;
 

@@ -19,7 +19,7 @@ int strbeg(const char *str1, const char *str2)
 
 int sendSignalToThinker(){
     printf("Debug Message: Sending Signal to think.\n");
-    if (kill(getppid(), SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
+    if (kill(gameData->processIDParent, SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
         printf("Error sending signal!! SIGUSR1\n");
         return -1;
     }
@@ -31,7 +31,7 @@ int sendExitToThinker(){
         printf("Error sending signal!! SIGUSR2\n");
         return -1;
     }*/
-    if (kill(getppid(), SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
+    if (kill(gameData->processIDParent, SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
         printf("Error sending signal!! SIGUSR1\n");
         return -1;
     }
@@ -239,12 +239,17 @@ int performConnection(int socket_fd)
                     cleanupSharedMemories();
                     return -1;
                 }
+                gameData->fieldAddress=gfield;
+                printf("Field Address written\n");
                 sscanf(lineBuf, "+ FIELD %d,%d", &gfield->width, &gfield->height);
-                gfield->field=malloc(gfield->height*gfield->width*sizeof(int));
+                printf("Hoehe: %d,%d\n", gfield->width, gfield->height);
+                gfield->field=malloc((gfield->height*gfield->width)*sizeof(int));
+                bzero(gfield->field, (gfield->height*gfield->width)*sizeof(int));
             }
             else if (strbeg(lineBuf, "+ ") && getField) {
                 int line;
                 sscanf(lineBuf, "+ %d", &line);
+
                 for (j = 0; j < gfield->width; j++){
                     if(lineBuf[4 + j * 2] == 'W') {
                         if(gameData->playerID==0) {
@@ -261,8 +266,10 @@ int performConnection(int socket_fd)
                     }else if(lineBuf[4 + j * 2] == '*') {
                         gfield->field[line-1*gfield->width+j] = 0;
                     }
-                    //printf("%d ",gfield->field[line-1*gfield->width+j]);                            //Just for Testing
+
+                    printf("%d",gfield->field[line-1*gfield->width+j]);                            //Just for Testing
                 }
+                //if(gfield->height<=10){}
                 if(line==1) {
                     getField = 0;
                 }

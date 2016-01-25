@@ -38,18 +38,28 @@ int cleanupGameData(){
 void handler(int parameter) {
     if (parameter == SIGUSR1 && gameData->thinkerMakeMove==1) {
         gameData->thinkerMakeMove = -1;
-        printf("%s\n",gameData->gamename);
+        printf("\nSpiel: Gameneame: %s\n",gameData->gamename);
         char move[4];
         memset(move, 0, sizeof(move));
+        move[0]='H';
+        move[1]='8';
+        int tmpMove=0;
+        int tmpAddr;
+        //gameField_t *fieldStruct;
+        //fieldStruct=gameData->fieldAddress;
+        //printf("Feldhöhe: %i\n", fieldStruct->height);
+        //tmpMove = gueltigerZug(fieldStruct->field, fieldStruct->height);
+        //printf("Feldhöhe: %i\n", fieldStruct->height);
         write(gameData->pipe.out, move, 4);
         //TODO: draw the board
         //TODO: drawBoard();
-    } else{
+    } else if (parameter == SIGUSR1){
         printf("Reached: cleanupGameData\n\tID to detach: %i\n", gameData->shmid_gameData);
         if(gameData->thinkerMakeMove<=0) {
             //perror(FATAL_ERROR);
             cleanupGameData();
         }
+
     }
 }
 
@@ -101,8 +111,8 @@ int think1()
         //closing pipe out:
         close(gameData->pipe.out);
 
-        //signal:
-        signal(SIGUSR1, &handler);
+        //signal
+        signal(SIGUSR1, handler);
 
         int connectorStatus;
         waitpid(pid, &connectorStatus, 0);
@@ -274,7 +284,7 @@ int sligtlyEnhancedRandomAI (int zuege[], int anzahl, int groesse){
     return zuege[r];
 }
 
-char* convertMove(char * spielzug, int position, int groesse){
+char* convertMove(char *spielzug, int position, int groesse){
     //ASCII umrechnung der Position
     // char * spielzug enthält den fertigen String
     spielzug[0] = (position % groesse) + 65;
