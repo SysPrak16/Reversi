@@ -255,6 +255,25 @@ int randomAI (int zuege[], int anzahl){
     return zuege[r];
 }
 
+int sligtlyEnhancedRandomAI (int zuege[], int anzahl, int groesse){
+    int i;
+    for (int i = 0; i<anzahl; i++)      //überprüfe ob folgende Positionen in der Liste sind
+    {
+        if (zuege[i]==0){       //links oben
+            return 0;}
+        if (zuege[i]== (groesse-1)){    //rechts oben
+            return (zuege[i]);}
+        if (zuege[i]== (groesse*groesse-1)){    //rechts unten
+            return (zuege[i]);}
+        if (zuege[i]== (groesse*(groesse-1))){  //links unten
+            return (zuege[i]);}
+    }
+    time_t t;       //Ansonsten wähle nen zufälligen Zug
+    srand((unsigned) time(&t));
+    int r = rand() % anzahl;
+    return zuege[r];
+}
+
 char* convertMove(char * spielzug, int position, int groesse){
     //ASCII umrechnung der Position
     // char * spielzug enthält den fertigen String
@@ -273,14 +292,15 @@ char* convertMove(char * spielzug, int position, int groesse){
 }
 
 int gueltigerZug(int *feld, int groesse){
-    int i, n, gain, sizeZuege, zug;
+    int i, n, gain, sizeZuege, zug, currentMaxGain, maxGainZug;
 
     int * zuege = malloc(groesse*groesse * sizeof(int));
     if (NULL == zuege) {
         fprintf(stderr, "malloc failed\n");
         return(-1);
     }
-
+    currentMaxGain = 0;
+    maxGainZug = -1;
     sizeZuege = 0;
     for (i=0; i<(groesse*groesse);i++){
         if (feld[i]==0)
@@ -322,7 +342,12 @@ int gueltigerZug(int *feld, int groesse){
             {
                 zuege[sizeZuege] = i;
                 sizeZuege++;
-            }}
+            }
+            if (gain > currentMaxGain)
+            {
+                maxGainZug = i;
+            }
+        }
     }
 
     if (sizeZuege == 0)
@@ -330,6 +355,9 @@ int gueltigerZug(int *feld, int groesse){
         printf("kein gültiger Zug berechenbar");
         return -1;  }
     zug = randomAI(zuege,sizeZuege);
+    // zug = sligtlyEnhancedRandomAI (zuege,sizeZuege,groesse);
+    // Max Gain KI:
+    // zug = maxGainZug;
     free(zuege);
     return zug;
 }
