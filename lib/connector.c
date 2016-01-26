@@ -22,6 +22,7 @@ void initgameData()
     gameData->shmid_field= -1;
     gameData->shmid_players= -1;
     gameData->thinkerMakeMove=-1;
+    gameData->sig_exit=1;
 }
 
 

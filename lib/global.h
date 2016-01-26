@@ -40,7 +40,9 @@
  * Defaults
  */
 #define DEFAULT_CONFIG "default.conf"
-
+#define GAME_DATA_ID 1492
+#define FIELD_ID 1493
+#define PLAYERS_ID 1494
 /*
  * Error Messages
  */
@@ -90,7 +92,7 @@ typedef struct{
     int shmid_field;            //field
     int shmid_players;           //player info
     //==========Shared Memory segment IDs END ==========//
-    gameField_t *fieldAddress;
+    int sig_exit;
     int thinkerMakeMove;        //signal
 } gameData_t;
 

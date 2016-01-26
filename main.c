@@ -68,5 +68,5 @@ int main( int argc, char* argv[] )
         printf("\tNo external configuration provided, initialising from default...\n");
         initDefault();
     }
-    return think1();
+    return think();
 }

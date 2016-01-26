@@ -10,7 +10,6 @@
 #include <signal.h>
 #include <string.h>
 #include <time.h>
-#include <sys/wait.h>
 #include "thinker.h"
 #include "connector.h"
 
@@ -36,21 +35,35 @@ int cleanupGameData(){
  * datahandler for signal call:
  */
 void handler(int parameter) {
+    gameField_t *gfield;
+    int fieldID;
     if (parameter == SIGUSR1 && gameData->thinkerMakeMove==1) {
         gameData->thinkerMakeMove = -1;
-        printf("\nSpiel: Gameneame: %s\n",gameData->gamename);
+        //Attach memory:
+        if ((fieldID = shmget(FIELD_ID, sizeof(gfield), 0)) == -1) {
+            perror(SHM_ERROR);
+        }
+        gfield = shmat(fieldID, 0, 0);
+        if (gfield == (gameField_t *) -1) {
+            perror(SHM_ERROR);
+        }
+
+        printf("Spielfeldhoehe: %i\n", gfield->height);
+        printf("Spielfeldbreite: %i\n", gfield->width);
+        int c, d;
+        d=1;
+        for (c=0;c<gfield->height*gfield->height;c++){
+            printf("%i ",gfield->field[c]);
+            if (c+1==d*gfield->height){
+                d++;
+                printf("\n");
+            }
+        }
         char move[4];
         memset(move, 0, sizeof(move));
-        move[0]='H';
-        move[1]='8';
-        int tmpMove=0;
-        int tmpAddr;
-        //gameField_t *fieldStruct;
-        //fieldStruct=gameData->fieldAddress;
-        //printf("Feldhöhe: %i\n", fieldStruct->height);
-        //tmpMove = gueltigerZug(fieldStruct->field, fieldStruct->height);
-        //printf("Feldhöhe: %i\n", fieldStruct->height);
         write(gameData->pipe.out, move, 4);
+        //detach:
+        //shmdt(gfield);
         //TODO: draw the board
         //TODO: drawBoard();
     } else if (parameter == SIGUSR1){
@@ -63,7 +76,7 @@ void handler(int parameter) {
     }
 }
 
-int think1()
+int think()
 {
     //creating the shared memory segment:
     int shmid = shmget(IPC_PRIVATE, sizeof(gameData_t), IPC_CREAT | 0666);
@@ -112,10 +125,11 @@ int think1()
         close(gameData->pipe.out);
 
         //signal
-        signal(SIGUSR1, handler);
-
-        int connectorStatus;
-        waitpid(pid, &connectorStatus, 0);
+        do{
+            signal(SIGUSR1, handler);
+        }while(gameData->sig_exit);
+        //int connectorStatus;
+        //waitpid(pid, &connectorStatus, 0);
     }
     return EXIT_SUCCESS;
 }

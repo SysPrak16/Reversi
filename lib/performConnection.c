@@ -2,7 +2,6 @@
 #include "global.h"
 #include "connector.h"
 
-#include <unistd.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <string.h>
@@ -31,6 +30,7 @@ int sendExitToThinker(){
         printf("Error sending signal!! SIGUSR2\n");
         return -1;
     }*/
+    gameData->sig_exit=0;
     if (kill(gameData->processIDParent, SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
         printf("Error sending signal!! SIGUSR1\n");
         return -1;
@@ -40,14 +40,14 @@ int sendExitToThinker(){
 
 int cleanupSharedMemories(){
     printf("Reached: cleanupSharedMemories()\n");
-    if (gameData->shmid_players!= NULL){
+    if (gameData->shmid_players!=-1){
         printf("Reached: players\n\tID to detach: %i\n", gameData->shmid_players);
         if(shmctl (gameData->shmid_players, IPC_RMID, NULL)<0){
             perror(DETATCH_ERROR);
         }
         printf("Cleaned: players\n");
     }
-    if (gameData->shmid_field!= NULL) {
+    if (gameData->shmid_field!=-1) {
         printf("Reached: field\n\tID to detach: %i\n", gameData->shmid_field);
         if (shmctl(gameData->shmid_field, IPC_RMID, NULL) < 0) {
             perror(DETATCH_ERROR);
@@ -183,14 +183,14 @@ int performConnection(int socket_fd)
             } else if (strbeg(lineBuf, "+ TOTAL")) {
                 sscanf(lineBuf,"+ TOTAL %i",&gameData->playerCount);
                 //fprintf(stdout, "Active players: %d\n", gameData->playerCount);
-
-                gameData->shmid_players=shmget(IPC_PRIVATE, sizeof(player_t) * gameData->playerCount, IPC_CREAT | 0666);
+                //was: gameData->shmid_players=shmget(IPC_PRIVATE, sizeof(player_t) * gameData->playerCount, IPC_CREAT | 0666);
+                gameData->shmid_players=shmget(PLAYERS_ID, sizeof(player_t) * gameData->playerCount, IPC_CREAT | 0666);
                 if (gameData->shmid_players == -1) {
                     perror(SHM_ERROR);
                     cleanupSharedMemories();
                     return -1;
                 }
-                players=shmat(gameData->shmid_players, NULL, 0);
+                players=shmat(gameData->shmid_players, 0, 0);
                 if (players == (player_t *) -1) {
                     perror(SHM_ERROR);
                     cleanupSharedMemories();
@@ -224,53 +224,99 @@ int performConnection(int socket_fd)
                 }
             }else if (strbeg(lineBuf, "+ MOVE")){
                 sscanf(lineBuf,"+ MOVE %i",&gameData->movetime);
-                getField=1;
+                //getField=1;
             }else if (strbeg(lineBuf, "+ FIELD")){
                 getField=1;
-                gameData->shmid_field=shmget(IPC_PRIVATE, sizeof(gfield), IPC_CREAT | 0666);
+                //was: gameData->shmid_field=shmget(IPC_PRIVATE, sizeof(gfield), IPC_CREAT | 0666);
+                gameData->shmid_field=shmget(FIELD_ID, sizeof(gfield), IPC_CREAT | 0666);
                 if (gameData->shmid_field == -1) {
                     perror(SHM_ERROR);
                     cleanupSharedMemories();
                     return -1;
                 }
-                gfield=shmat(gameData->shmid_field, NULL, 0);
+                //was:gfield=shmat(gameData->shmid_field, NULL, 0);
+                gfield=shmat(gameData->shmid_field, 0, 0);
                 if (gfield == (void *) -1) {
                     perror(SHM_ERROR);
                     cleanupSharedMemories();
                     return -1;
                 }
-                gameData->fieldAddress=gfield;
+
+                //gameData->fieldAddress=gfield;
                 printf("Field Address written\n");
                 sscanf(lineBuf, "+ FIELD %d,%d", &gfield->width, &gfield->height);
-                printf("Hoehe: %d,%d\n", gfield->width, gfield->height);
                 gfield->field=malloc((gfield->height*gfield->width)*sizeof(int));
-                bzero(gfield->field, (gfield->height*gfield->width)*sizeof(int));
             }
             else if (strbeg(lineBuf, "+ ") && getField) {
+
                 int line;
-                sscanf(lineBuf, "+ %d", &line);
+                sscanf(lineBuf, "+ %i", &line);
 
-                for (j = 0; j < gfield->width; j++){
-                    if(lineBuf[4 + j * 2] == 'W') {
-                        if(gameData->playerID==0) {
-                            gfield->field[line - 1 * gfield->width + j] = 2;
-                        }else {
-                            gfield->field[line - 1 * gfield->width + j] = 1;
+                if(line>=10){
+                    for(j = 0; j < gfield->width; j++){
+                        if (lineBuf[5 + j * 2] == 'W'){
+                            switch (gameData->playerID){
+                                case 0:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=2;
+                                    break;
+                                case 1:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=1;
+                                    break;
+                            }
+                        }else if(lineBuf[5 + j * 2] == 'B'){
+                            switch (gameData->playerID){
+                                case 0:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=1;
+                                    break;
+                                case 1:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=2;
+                                    break;
+                            }
+                        } else if(lineBuf[5 + j * 2] == '*'){
+                            gfield->field[j+(gfield->width*(gfield->height-line))]=0;
                         }
-                    }else if(lineBuf[4 + j * 2] == 'B') {
-                        if(gameData->playerID==0) {
-                            gfield->field[line-1 * gfield->width + j] = 1;
-                        }else{
-                            gfield->field[line-1*gfield->width+j] = 2;
-                        }
-                    }else if(lineBuf[4 + j * 2] == '*') {
-                        gfield->field[line-1*gfield->width+j] = 0;
                     }
-
-                    printf("%d",gfield->field[line-1*gfield->width+j]);                            //Just for Testing
+                }else{
+                    for(j = 0; j < gfield->width; j++){
+                        if (lineBuf[4 + j * 2] == 'W'){
+                            switch (gameData->playerID){
+                                case 0:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=2;
+                                    break;
+                                case 1:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=1;
+                                    break;
+                            }
+                        }else if(lineBuf[4 + j * 2] == 'B'){
+                            switch (gameData->playerID){
+                                case 0:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=1;
+                                    break;
+                                case 1:
+                                    gfield->field[j+(gfield->width*(gfield->height-line))]=2;
+                                    break;
+                            }
+                        } else if(lineBuf[4 + j * 2] == '*'){
+                            gfield->field[j+(gfield->width*(gfield->height-line))]=0;
+                        }
+                    }
                 }
-                //if(gfield->height<=10){}
                 if(line==1) {
+                    int c, d;
+                    d=1;
+                    for (c=0;c<gfield->height*gfield->height;c++){
+                        printf("%d ",gfield->field[c]);
+                        if (c+1==d*gfield->height){
+                            d++;
+                            printf("\n");
+                        }
+                    }
+                    gameData->thinkerMakeMove=1;
+                    if(sendSignalToThinker()==-1){
+                        perror(SIG_ERROR);
+                        cleanupSharedMemories();
+                        return -1;
+                    }
                     getField = 0;
                 }
             } else if (strbeg(lineBuf, "+ ENDFIELD")) {
@@ -279,18 +325,27 @@ int performConnection(int socket_fd)
                     cleanupSharedMemories();
                     return -1;
                 } else {
-                    //DEBUG: printf("C: %.*s", n, CTHINK);
+                    //DEBUG:
+                    printf("C: %.*s", n, CTHINK);
                 }
                 //TODO signal
-                gameData->thinkerMakeMove=1;
+                /*gameData->thinkerMakeMove=1;
                 if(sendSignalToThinker()==-1){
                     perror(SIG_ERROR);
                     cleanupSharedMemories();
                     return -1;
-                }
+                }*/
             } else if (strbeg(lineBuf, "+ OKTHINK")) {
                 //TODO PLAY -- MOVE
-                if (FD_ISSET(gameData->pipe.in, &set)) {
+                char *move = "F4";
+                if (send(socket_fd, move, strlen(move), 0) < 0) {
+                    puts("Send failed");
+                    cleanupSharedMemories();
+                    return -1;
+                } else {
+                    //DEBUG: printf("C: %.*s", n, play);
+                }
+                /*if (FD_ISSET(gameData->pipe.in, &set)) {
                     char move[4];
                     read(gameData->pipe.in, move, sizeof(move));
 
@@ -301,7 +356,7 @@ int performConnection(int socket_fd)
                     } else {
                         //DEBUG: printf("C: %.*s", n, play);
                     }
-                }
+                }*/
 
             } else if (strbeg(lineBuf, "+ QUIT")){
 
@@ -312,8 +367,6 @@ int performConnection(int socket_fd)
             }
             else {
                 printf("Fehlerhafte Nachricht vom Server\n");
-                //printf("%s\n", lineBuf);
-                    //myuSHYc->flag=42;       //Bricht SHM in Eleternprozess ab -> Beenden des Programmes
                 cleanupSharedMemories();
                 return -1;
             }

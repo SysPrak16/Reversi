@@ -20,6 +20,6 @@ int gueltigerZug(int feld[], int groesse);
  * this is doing a lot of work as initialising the shared memory and thinking
  */
 int think();
-int think1();
+
 
 #endif //REVERSI_THINKER_H
