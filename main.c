@@ -32,7 +32,7 @@ int main( int argc, char* argv[] )
     char configFile[256];
     strcpy(configFile, DEFAULT_CONFIG);
 	int ret;
-	while ((ret=getopt(argc, argv, "g:c:")) != -1) {
+	while ((ret=getopt(argc, argv, "g:c:d:")) != -1) {
 		switch (ret) {
 			case 'g':
                 gameID=readGameID(optarg);
@@ -50,6 +50,10 @@ int main( int argc, char* argv[] )
                     initFlag=1;
                 }
 				break;
+            case 'd':;
+                //char *AI=optarg;
+                config.aiType=atoi(optarg);
+                break;
 		}
 	}
 	if (strcmp(gameID,"ERROR")==0){

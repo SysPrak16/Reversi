@@ -68,7 +68,7 @@ typedef struct{
 typedef struct{
     int height;                 //Höhe
     int width;                  //Breite
-    int *field;                 //Aktuelles Feld
+    int field[16*16];                 //Aktuelles Feld
 }gameField_t;
 
 typedef struct {
@@ -107,6 +107,9 @@ gameData_t *gameData;
  * AI Types:
  */
 #define AI_RAND 0
+#define AI_ENHANCED_RAND 1
+#define AI_MAX_GAIN 2
+
 
 /*
  * Struct, which represents the config file types

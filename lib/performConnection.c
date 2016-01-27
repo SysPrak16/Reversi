@@ -39,20 +39,20 @@ int sendExitToThinker(){
 }
 
 int cleanupSharedMemories(){
-    printf("Reached: cleanupSharedMemories()\n");
+    //DEBUG: printf("Reached: cleanupSharedMemories()\n");
     if (gameData->shmid_players!=-1){
-        printf("Reached: players\n\tID to detach: %i\n", gameData->shmid_players);
+        //DEBUG: printf("Reached: players\n\tID to detach: %i\n", gameData->shmid_players);
         if(shmctl (gameData->shmid_players, IPC_RMID, NULL)<0){
             perror(DETATCH_ERROR);
         }
-        printf("Cleaned: players\n");
+        //DEBUG: printf("Cleaned: players\n");
     }
     if (gameData->shmid_field!=-1) {
-        printf("Reached: field\n\tID to detach: %i\n", gameData->shmid_field);
+        //DEBUG: printf("Reached: field\n\tID to detach: %i\n", gameData->shmid_field);
         if (shmctl(gameData->shmid_field, IPC_RMID, NULL) < 0) {
             perror(DETATCH_ERROR);
         }
-        printf("Cleaned: field\n");
+        //DEBUG: printf("Cleaned: field\n");
     }
     printf("Reached: signal thinker()\n");
     if(sendExitToThinker()==-1){
@@ -105,8 +105,7 @@ int performConnection(int socket_fd)
         lineBuf = strtok(buffer, splitToken);
         // walk through other tokens
         while( lineBuf != NULL ) {
-            //DEBUG:
-            fprintf(stdout, "S: %s\n", lineBuf);
+            //DEBUG: fprintf(stdout, "S: %s\n", lineBuf);
             if (strbeg(lineBuf, CON_TIMEOUT)) {
                 printf(CON_TIMEOUT_ERR_MSG);
                 cleanupSharedMemories();
@@ -243,9 +242,9 @@ int performConnection(int socket_fd)
                 }
 
                 //gameData->fieldAddress=gfield;
-                printf("Field Address written\n");
+                //DEBUG: printf("Field Address written\n");
                 sscanf(lineBuf, "+ FIELD %d,%d", &gfield->width, &gfield->height);
-                gfield->field=malloc((gfield->height*gfield->width)*sizeof(int));
+                //gfield->field=malloc((gfield->height*gfield->width)*sizeof(int));
             }
             else if (strbeg(lineBuf, "+ ") && getField) {
 
@@ -302,15 +301,6 @@ int performConnection(int socket_fd)
                     }
                 }
                 if(line==1) {
-                    int c, d;
-                    d=1;
-                    for (c=0;c<gfield->height*gfield->height;c++){
-                        printf("%d ",gfield->field[c]);
-                        if (c+1==d*gfield->height){
-                            d++;
-                            printf("\n");
-                        }
-                    }
                     gameData->thinkerMakeMove=1;
                     if(sendSignalToThinker()==-1){
                         perror(SIG_ERROR);

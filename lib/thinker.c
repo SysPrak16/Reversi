@@ -8,12 +8,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
-#include <string.h>
 #include <time.h>
 #include "thinker.h"
 #include "connector.h"
 
-//extern MTS myMTS;
 extern config_t config;
 
 /*
@@ -21,14 +19,69 @@ extern config_t config;
  */
 
 int cleanupGameData(){
-    printf("Reached: cleanupGameData()\n");
+    //DEBUG: printf("Reached: cleanupGameData()\n");
     if(shmctl (gameData->shmid_gameData, IPC_RMID, NULL)<0)
     {
         perror(DETATCH_ERROR);
         return -1;
     }
-    printf("All memories retconed!\n");
+    printf("All memories retconed!\nNow exiting...\n(c) 2016-20xx: Torchwood Institute\n");
     return 0;
+}
+
+/*
+ * draw field
+ */
+void drawField(int *field, int size){
+    int c, d;
+    d=1;
+    printf("CURRENT BOARD:\n\n");
+    printf("    ");
+    for (c=0;c<size;c++){
+        putchar('A'+c);
+        putchar(' ');
+    }
+    printf("    \n");
+    if(size-d+1>=10){
+        printf("%i| ",size-d+1);
+    }else{
+        printf(" %i| ",size-d+1);
+    }
+    for (c=0;c<size*size;c++){
+        switch(gameData->playerID){
+            case 0:
+                if (field[c]==2){
+                    putchar('W');
+                } else if (field[c]==1){
+                    putchar('B');
+                } else {
+                    putchar('*');
+                }
+                break;
+            case 1:
+                if (field[c]==1){
+                    putchar('W');
+                } else if (field[c]==2){
+                    putchar('B');
+                } else {
+                    putchar('*');
+                }
+                break;
+            default:
+                break;
+        }
+        if (c+1==d*size){
+            d++;
+            printf("\n");
+            if(size-d+1>=10){
+                printf("%i| ",size-d+1);
+            }else if(size-d+1>0){
+                printf(" %i| ",size-d+1);
+            }
+        } else{
+            putchar(' ');
+        }
+    }
 }
 
 /*
@@ -37,7 +90,7 @@ int cleanupGameData(){
 void handler(int parameter) {
     gameField_t *gfield;
     int fieldID;
-    if (parameter == SIGUSR1 && gameData->thinkerMakeMove==1) {
+    if (gameData->thinkerMakeMove==1 && parameter == SIGUSR1) {
         gameData->thinkerMakeMove = -1;
         //Attach memory:
         if ((fieldID = shmget(FIELD_ID, sizeof(gfield), 0)) == -1) {
@@ -47,27 +100,22 @@ void handler(int parameter) {
         if (gfield == (gameField_t *) -1) {
             perror(SHM_ERROR);
         }
-
-        printf("Spielfeldhoehe: %i\n", gfield->height);
-        printf("Spielfeldbreite: %i\n", gfield->width);
-        int c, d;
-        d=1;
-        for (c=0;c<gfield->height*gfield->height;c++){
-            printf("%i ",gfield->field[c]);
-            if (c+1==d*gfield->height){
-                d++;
-                printf("\n");
-            }
-        }
+        //Draw field:
+        drawField(gfield->field, gfield->width);
         char move[4];
-        memset(move, 0, sizeof(move));
-        write(gameData->pipe.out, move, 4);
+        char *sMove;
+        int tmpMove;
+        tmpMove=gueltigerZug(gfield->field, gfield->width);
+        printf("Temporärer Zug: %i\n",tmpMove);
+        sMove=convertMove(move, tmpMove, gfield->width);
+        printf("Konvertierter Zug: %s\n", sMove);
+        //TODO: FIX PIPE AND SIGNAL
+        //memset(move, 0, sizeof(move));
+        write(gameData->pipe.out, sMove, sizeof(sMove));
         //detach:
-        //shmdt(gfield);
-        //TODO: draw the board
-        //TODO: drawBoard();
-    } else if (parameter == SIGUSR1){
-        printf("Reached: cleanupGameData\n\tID to detach: %i\n", gameData->shmid_gameData);
+        shmdt(gfield);
+    } else if (gameData->thinkerMakeMove<=0 && parameter == SIGUSR1){
+        //DEBUG: printf("Reached: cleanupGameData\n\tID to detach: %i\n", gameData->shmid_gameData);
         if(gameData->thinkerMakeMove<=0) {
             //perror(FATAL_ERROR);
             cleanupGameData();
@@ -378,10 +426,24 @@ int gueltigerZug(int *feld, int groesse){
     {
         printf("kein gültiger Zug berechenbar");
         return -1;  }
-    zug = randomAI(zuege,sizeZuege);
-    // zug = sligtlyEnhancedRandomAI (zuege,sizeZuege,groesse);
-    // Max Gain KI:
-    // zug = maxGainZug;
+    /*
+     * Switch on AI type:
+     */
+    switch(config.aiType){
+        case AI_RAND:
+            zug = randomAI(zuege,sizeZuege);
+            break;
+        case AI_ENHANCED_RAND:
+            zug = sligtlyEnhancedRandomAI (zuege,sizeZuege,groesse);
+            break;
+        case AI_MAX_GAIN:
+            zug = maxGainZug;
+            break;
+        default:
+            //if everything else fails:
+            zug = randomAI(zuege,sizeZuege);
+            break;
+    }
     free(zuege);
     return zug;
 }
