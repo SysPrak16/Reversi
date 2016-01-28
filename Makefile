@@ -1,7 +1,7 @@
 CC 		= gcc
-CFLAGS 		= -Wall -std=c99 -g
+CFLAGS 		= -Wall -std=c99 -ggdb
 OBJECTS 	= main.o performConnection.o connector.o thinker.o fileIOHandler.o
-TARGET 		= reversi
+TARGET 		= play
 
 all: $(OBJECTS)
 		$(CC) $(OBJECTS) -o $(TARGET)

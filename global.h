@@ -14,7 +14,7 @@
 #define CVERSION "VERSION 1.0\n"
 #define CTHINK "THINKING\n"
 #define CWAIT "OKWAIT\n"
-#define PLAYER1 "PLAYER 1\n"
+#define PLAYER1 "PLAYER\n"
 /*
  * Protocol Globals - Server
  */
@@ -78,7 +78,7 @@ typedef struct{
     int playerCount;            //Anzahl Spieler
     int playerID;               //client player ID
     int gameOver;               //Gameover!
-    size_t movesize;
+    int movesize;
     pipe_t pipe;
 
     pid_t processIDParent;      //Process ID Parent
