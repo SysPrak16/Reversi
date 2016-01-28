@@ -78,7 +78,7 @@ typedef struct{
     int playerCount;            //Anzahl Spieler
     int playerID;               //client player ID
     int gameOver;               //Gameover!
-    size_t movesize;
+    int movesize;
     pipe_t pipe;
 
     pid_t processIDParent;      //Process ID Parent

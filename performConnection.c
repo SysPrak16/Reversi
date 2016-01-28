@@ -96,8 +96,7 @@ int performConnection(int socket_fd)
         //FD_SET(socket_fd, &set);
         char *lineBuf;
         lineBuf = strtok(buffer, splitToken);
-        //DEBUG:
-        printf("S: %s\n",lineBuf);
+        //DEBUG:printf("S: %s\n",lineBuf);
 
         while( lineBuf != NULL ) {
             //DEBUG: fprintf(stdout, "S: %s\n", lineBuf);
@@ -172,7 +171,7 @@ int performConnection(int socket_fd)
             } else if (strbeg(lineBuf, "+ YOU")) {
                 //sscanf(lineBuf,"+ YOU %i %s",&gameData->playerID, clientName);
                 sscanf(lineBuf,"+ YOU %i %[^\n]",&gameData->playerID, clientName);
-                printf("You are player %i, named %s, playing the %s tokens\n",gameData->playerID, clientName,(gameData->playerID==0)?("black"):("white"));
+                printf("\tYou are player %i, named %s, playing the %s tokens\n",gameData->playerID, clientName,(gameData->playerID==0)?("black"):("white"));
                 //printf("\tYour player number: \"%i\".\n\tYour name: \"%s\"\n",gameData->playerID, clientName);
             } else if (strbeg(lineBuf, "+ TOTAL")) {
                 sscanf(lineBuf,"+ TOTAL %i",&gameData->playerCount);
@@ -211,7 +210,7 @@ int performConnection(int socket_fd)
 
                 players[pnumber].number=pnumber;
                 strcpy(players[pnumber].name, pname);
-                printf("You are playing against Player %i, named %s, who is %s\n",players[pnumber].number,players[pnumber].name,(players[pnumber].flag==1)?("Ready"):("Not Ready yet"));
+                printf("\tYou are playing against Player %i, named %s, who is %s\n",players[pnumber].number,players[pnumber].name,(players[pnumber].flag==1)?("Ready"):("Not Ready yet"));
                 //players[pnumber].flag=pactive;
                 opi=0;
             } else if (strbeg(lineBuf, "+ ENDPLAYERS")) {
@@ -332,17 +331,18 @@ int performConnection(int socket_fd)
                         wait(0);
                     } while (gameData->moveOK!=1);
                     gameData->moveOK=0;
-                    move=malloc(gameData->movesize);
-                    read(gameData->pipe.read, move, gameData->movesize);
-                    char *final_move=malloc(gameData->movesize+6*sizeof(char));
-                    printf("Empfangen: %s\n",move);
+                    //char mMove[3];
+                    move=malloc(gameData->movesize*sizeof(char));
+                    read(gameData->pipe.read, move, gameData->movesize*sizeof(char));
+                    char *final_move=malloc(gameData->movesize*sizeof(char)+6*sizeof(char));
+                    //printf("Empfangen: %s\n",move);
                     bzero(final_move,sizeof(final_move));
                     strcpy(final_move, "PLAY ");
                     strcat(final_move, move);
-                    strcat(final_move, "\n");
+                    //strcat(final_move, "\n");
                     //strcat(final_move, " ");
                     //DEBUG:
-                    printf("%s",final_move);
+                    printf("\n\tAI Moved to: %s\n",move);
                     if (send(socket_fd, final_move, strlen(final_move), 0) < 0) {
                         puts("Send failed");
                         free(move);
@@ -366,7 +366,6 @@ int performConnection(int socket_fd)
                 }
             }
             else if (strbeg(lineBuf, "+ QUIT")){
-                //TODO:Free memories + signal thinker exit
                 cleanupSharedMemories();
                 return 0;
 

@@ -106,5 +106,5 @@ int readCfg(const char *filename) {
 void initconfig()
 {
     memset(&config, 0, sizeof(config));
-    config.aiType =AI_RAND;
+    config.aiType =AI_MAX_GAIN;
 }

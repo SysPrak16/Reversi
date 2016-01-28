@@ -177,7 +177,7 @@ void handler(int parameter) {
         }
         //Draw field:
         drawField(gfield->field, gfield->width);
-        char move[3];
+        char move[5];
         char *sMove;
         int tmpMove;
         tmpMove=gueltigerZug(gfield->field, gfield->width);
@@ -185,7 +185,7 @@ void handler(int parameter) {
         if (tmpMove>=0) {
             sMove = convertMove(move, tmpMove, gfield->width);
             //DEBUG:
-            printf("Konvertierter Zug: %s\n", sMove);
+            //printf("Konvertierter Zug: %s\n", sMove);
             //memset(move, 0, sizeof(move));
             //gameData->movesize = sizeof(sMove);
             if ((write(gameData->pipe.write, sMove, gameData->movesize)) !=
@@ -441,18 +441,26 @@ char* convertMove(char *spielzug, int position, int groesse){
     //ASCII umrechnung der Position
     // char * spielzug enthält den fertigen String
     spielzug[0] = (position % groesse) + 65;
+    spielzug[1]='\0';
+    spielzug[2]='\0';
+    spielzug[3]='\0';
+    spielzug[4]='\0';
     int y = groesse - (position / groesse);
     if (y>9) {
         spielzug[1] = 49;
         spielzug[2] = y % 10 + 48;
-        gameData->movesize=sizeof(char)*3;
+        spielzug[3] ='\n';
     }
     else {
         spielzug[1] = y+48;
-        spielzug[2] = 0;
-        gameData->movesize=sizeof(char)*2;
+        spielzug[2] = '\n';
+        gameData->movesize=5;
     }
-    printf("Zug: %s\n", spielzug);
+    gameData->movesize=5;
+    /*int n;
+    for(n=0;n<5;n++){
+        printf("Zug: %c\n", spielzug[n]);
+    }*/
     //strcat(spielzug,"\n");
     return spielzug;
 }
@@ -535,7 +543,7 @@ int gueltigerZug(int *feld, int groesse){
             break;
         default:
             //if everything else fails:
-            zug = randomAI(zuege,sizeZuege);
+            zug = maxGainZug;
             break;
     }
     free(zuege);
