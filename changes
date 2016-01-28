@@ -78,3 +78,24 @@ void drawField(int *field, int size){
             putchar(' ');
         }
     }
+
+
+
+
+
+
+    //Additional Format
+    printf("  +-");
+    for (c=0;c<size;c++){
+        putchar('-');
+        putchar('-');
+    }
+    printf("+\n");
+
+    printf("    ");
+    for (c=0;c<size;c++){
+        putchar('A'+c);
+        putchar(' ');
+    }
+    printf("    \n");
+}
