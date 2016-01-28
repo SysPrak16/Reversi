@@ -1,0 +1,14 @@
+performConnection
+
+208:
+sscanf(lineBuf,"+ %i %[^\n]", &pnumber, pname);
+int c=-1;
+do{
+c++;
+}while(pname[c]!='\0');
+//For getting Flag
+players[pnumber].flag = atoi(&pname[c-1]);
+
+221:
+printf("You are playing against Player %i, named %s, who is %s\n",players[pnumber].number,players[pnumber].name,(players[pnumber].flag==1)?("Ready"):("Not Ready yet"));
+//players[pnumber].flag=pactive;
