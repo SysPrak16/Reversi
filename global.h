@@ -14,7 +14,7 @@
 #define CVERSION "VERSION 1.0\n"
 #define CTHINK "THINKING\n"
 #define CWAIT "OKWAIT\n"
-#define PLAYER1 "PLAYER 1\n"
+#define PLAYER1 "PLAYER\n"
 /*
  * Protocol Globals - Server
  */

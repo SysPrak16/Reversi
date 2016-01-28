@@ -96,7 +96,8 @@ int performConnection(int socket_fd)
         //FD_SET(socket_fd, &set);
         char *lineBuf;
         lineBuf = strtok(buffer, splitToken);
-        //DEBUG: printf("S: %s\n",lineBuf);
+        //DEBUG:
+        printf("S: %s\n",lineBuf);
 
         while( lineBuf != NULL ) {
             //DEBUG: fprintf(stdout, "S: %s\n", lineBuf);
@@ -169,19 +170,23 @@ int performConnection(int socket_fd)
                 sscanf(lineBuf,"+ %s",gameData->gamename);
                 ggN=0;
             } else if (strbeg(lineBuf, "+ YOU")) {
-                sscanf(lineBuf,"+ YOU %i %s",&gameData->playerID, clientName);
-                printf("\tYour player number: \"%i\".\n\tYour name: \"%s\"\n",gameData->playerID, clientName);
+                //sscanf(lineBuf,"+ YOU %i %s",&gameData->playerID, clientName);
+                sscanf(lineBuf,"+ YOU %i %[^\n]",&gameData->playerID, clientName);
+                printf("You are player %i, named %s, playing the %s tokens\n",gameData->playerID, clientName,(gameData->playerID==0)?("black"):("white"));
+                //printf("\tYour player number: \"%i\".\n\tYour name: \"%s\"\n",gameData->playerID, clientName);
             } else if (strbeg(lineBuf, "+ TOTAL")) {
                 sscanf(lineBuf,"+ TOTAL %i",&gameData->playerCount);
-                gameData->shmid_players=shmget(PLAYERS_ID, sizeof(player_t) * gameData->playerCount, IPC_CREAT | 0666);
+                gameData->shmid_players=shmget(IPC_PRIVATE, sizeof(player_t) * gameData->playerCount, IPC_CREAT | 0666);
                 if (gameData->shmid_players == -1) {
                     perror(SHM_ERROR);
+                    //printf("This");
                     cleanupSharedMemories();
                     return -1;
                 }
                 players=shmat(gameData->shmid_players, 0, 0);
                 if (players == (player_t *) -1) {
                     perror(SHM_ERROR);
+                    //printf("This");
                     cleanupSharedMemories();
                     return -1;
                 }
@@ -194,13 +199,23 @@ int performConnection(int socket_fd)
                 int pnumber=-1;
                 char pname[BUF_SIZE];
                 int pactive=-1;
-                sscanf(lineBuf,"+ %i %s %i", &pnumber, pname, &pactive);
+                //sscanf(lineBuf,"+ %i %s %i", &pnumber, pname, &pactive);
+                sscanf(lineBuf,"+ %i %[^\n]", &pnumber, pname);
                 //DEBUG: printf("\tNUMBER: %i\n",pnumber);
+                int c=-1;
+                do{
+                    c++;
+                }while(pname[c]!='\0');
+                //For getting Flag
+                players[pnumber].flag = atoi(&pname[c-1]);
+
                 players[pnumber].number=pnumber;
                 strcpy(players[pnumber].name, pname);
-                players[pnumber].flag=pactive;
+                printf("You are playing against Player %i, named %s, who is %s\n",players[pnumber].number,players[pnumber].name,(players[pnumber].flag==1)?("Ready"):("Not Ready yet"));
+                //players[pnumber].flag=pactive;
                 opi=0;
             } else if (strbeg(lineBuf, "+ ENDPLAYERS")) {
+
                 if(config.aiType==AI_RAND) {
                     printf(AGAINST_RAND);
                 }else if(config.aiType==AI_ENHANCED_RAND){
@@ -224,14 +239,16 @@ int performConnection(int socket_fd)
                 //getField=1;
             }else if (strbeg(lineBuf, "+ FIELD")){
                 getField=1;
-                gameData->shmid_field=shmget(FIELD_ID, sizeof(gfield), IPC_CREAT | 0666);
+                gameData->shmid_field=shmget(FIELD_ID+gameData->playerID*5, sizeof(gfield), IPC_CREAT | 0666);
                 if (gameData->shmid_field == -1) {
+                    printf("This");
                     perror(SHM_ERROR);
                     cleanupSharedMemories();
                     return -1;
                 }
                 gfield=shmat(gameData->shmid_field, 0, 0);
                 if (gfield == (void *) -1) {
+                    //printf("This");
                     perror(SHM_ERROR);
                     cleanupSharedMemories();
                     return -1;
@@ -318,10 +335,14 @@ int performConnection(int socket_fd)
                     move=malloc(gameData->movesize);
                     read(gameData->pipe.read, move, gameData->movesize);
                     char *final_move=malloc(gameData->movesize+6*sizeof(char));
+                    printf("Empfangen: %s\n",move);
+                    bzero(final_move,sizeof(final_move));
                     strcpy(final_move, "PLAY ");
                     strcat(final_move, move);
                     strcat(final_move, "\n");
-                    //DEBUG: printf("%s",final_move);
+                    //strcat(final_move, " ");
+                    //DEBUG:
+                    printf("%s",final_move);
                     if (send(socket_fd, final_move, strlen(final_move), 0) < 0) {
                         puts("Send failed");
                         free(move);

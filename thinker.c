@@ -9,8 +9,10 @@
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
+#include <string.h>
 #include "thinker.h"
 #include "connector.h"
+#include "global.h"
 
 extern config_t config;
 
@@ -32,7 +34,7 @@ int cleanupGameData(){
 /*
  * draw field
  */
-void drawField(int *field, int size){
+/*void drawField(int *field, int size){
     int c, d;
     d=1;
     printf("\n\n\tCURRENT BOARD:\n\n");
@@ -81,6 +83,79 @@ void drawField(int *field, int size){
         }
     }
     printf("\n\n");
+}*/
+
+void drawField(int *field, int size) {
+    int c, d;
+    d = 1;
+    printf("CURRENT BOARD:\n\n");
+    printf("    ");
+    for (c = 0; c < size; c++) {
+        putchar('A' + c);
+        putchar(' ');
+    }
+    printf("    \n");
+    //Additional Format
+    printf("  +-");
+    for (c = 0; c < size; c++) {
+        putchar('-');
+        putchar('-');
+    }
+    printf("+\n");
+    if (size - d + 1 >= 10) {
+        printf("%i| ", size - d + 1);
+    } else {
+        printf(" %i| ", size - d + 1);
+    }
+    for (c = 0; c < size * size; c++) {
+        switch (gameData->playerID) {
+            case 0:
+                if (field[c] == 2) {
+                    putchar('W');
+                } else if (field[c] == 1) {
+                    putchar('B');
+                } else {
+                    putchar('*');
+                }
+                break;
+            case 1:
+                if (field[c] == 1) {
+                    putchar('W');
+                } else if (field[c] == 2) {
+                    putchar('B');
+                } else {
+                    putchar('*');
+                }
+                break;
+            default:
+                break;
+        }
+        if (c + 1 == d * size) {
+            printf(" |%i\n", size - d + 1);
+            d++;
+            //printf(" |\n");
+            if (size - d + 1 >= 10) {
+                printf("%i| ", size - d + 1);
+            } else if (size - d + 1 > 0) {
+                printf(" %i| ", size - d + 1);
+            }
+        } else {
+            putchar(' ');
+        }
+    }
+    printf("  +-");
+    for (c=0;c<size;c++){
+        putchar('-');
+        putchar('-');
+    }
+    printf("+\n");
+
+    printf("    ");
+    for (c=0;c<size;c++){
+        putchar('A'+c);
+        putchar(' ');
+    }
+    printf("    \n");
 }
 
 /*
@@ -92,25 +167,27 @@ void handler(int parameter) {
     if (gameData->thinkerMakeMove==1 && parameter == SIGUSR1) {
         gameData->thinkerMakeMove = -1;
         //Attach memory:
-        if ((fieldID = shmget(FIELD_ID, sizeof(gfield), 0)) == -1) {
+        if ((fieldID = shmget(FIELD_ID+gameData->playerID*5, sizeof(gfield), 0)) == -1) {
             perror(SHM_ERROR);
         }
         gfield = shmat(fieldID, 0, 0);
         if (gfield == (gameField_t *) -1) {
+            printf("This\n");
             perror(SHM_ERROR);
         }
         //Draw field:
         drawField(gfield->field, gfield->width);
-        char move[4];
+        char move[3];
         char *sMove;
         int tmpMove;
         tmpMove=gueltigerZug(gfield->field, gfield->width);
         //DEBUG: printf("Temporärer Zug: %i\n",tmpMove);
         if (tmpMove>=0) {
             sMove = convertMove(move, tmpMove, gfield->width);
-            //DEBUG: printf("Konvertierter Zug: %s\n", sMove);
+            //DEBUG:
+            printf("Konvertierter Zug: %s\n", sMove);
             //memset(move, 0, sizeof(move));
-            gameData->movesize = sizeof(sMove);
+            //gameData->movesize = sizeof(sMove);
             if ((write(gameData->pipe.write, sMove, gameData->movesize)) !=
                 gameData->movesize) { //In Schreibseite schreiben
                 perror("Fehler bei write().");
@@ -133,14 +210,16 @@ void handler(int parameter) {
 int think()
 {
     //creating the shared memory segment:
-    int shmid = shmget(GAME_DATA_ID, sizeof(gameData_t), IPC_CREAT | 0666);
+    int shmid = shmget(IPC_PRIVATE, sizeof(gameData_t), IPC_CREAT | 0666);
     if (shmid == -1) {
+        //printf("This");
         perror(SHM_ERROR);
         return -1;
     }
     //Actually attaching it:
     gameData = (gameData_t *) shmat(shmid, NULL, 0);
     if (gameData == (gameData_t *) -1) {
+        //printf("This");
         perror(SHM_ERROR);
         return -1;
     }
@@ -366,12 +445,15 @@ char* convertMove(char *spielzug, int position, int groesse){
     if (y>9) {
         spielzug[1] = 49;
         spielzug[2] = y % 10 + 48;
+        gameData->movesize=sizeof(char)*3;
     }
     else {
         spielzug[1] = y+48;
         spielzug[2] = 0;
+        gameData->movesize=sizeof(char)*2;
     }
-    //printf("Zug: %s\n", spielzug);
+    printf("Zug: %s\n", spielzug);
+    //strcat(spielzug,"\n");
     return spielzug;
 }
 

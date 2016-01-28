@@ -38,11 +38,10 @@ int connectToServer()
     struct hostent *server;                                     //hostent defines a host computer on the Internet
     server = gethostbyname(config.hostname);
     //printf("\tConnecting to %s",config.hostname);
-    if (server == NULL)
-    {
+    if (server <=0 ) {
         printf("ERROR, no such host.\n");
-        _exit(0);
-	    //return 1;
+        //_exit(0);
+        return 0;
     }
     bzero((char *) &serv_addr, sizeof(serv_addr));
     printf("\tConnecting to %s \n",config.hostname);
