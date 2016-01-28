@@ -1,5 +1,10 @@
 performConnection
 
+180:
+sscanf(lineBuf,"+ YOU %i %[^\n]",&gameData->playerID, clientName);
+printf("You are player %i, named %s, playing the %s tokens\n",gameData->playerID, clientName,(gameData->playerID==0)?("black"):("white")); //TODO "playing White/Black"
+
+
 208:
 sscanf(lineBuf,"+ %i %[^\n]", &pnumber, pname);
 int c=-1;
@@ -12,3 +17,64 @@ players[pnumber].flag = atoi(&pname[c-1]);
 221:
 printf("You are playing against Player %i, named %s, who is %s\n",players[pnumber].number,players[pnumber].name,(players[pnumber].flag==1)?("Ready"):("Not Ready yet"));
 //players[pnumber].flag=pactive;
+
+
+Thinker:
+void drawField(int *field, int size){
+    int c, d;
+    d=1;
+    printf("CURRENT BOARD:\n\n");
+    printf("    ");
+    for (c=0;c<size;c++){
+        putchar('A'+c);
+        putchar(' ');
+    }
+    printf("    \n");
+    //Additional Format
+    printf("  +-");
+    for (c=0;c<size;c++){
+        putchar('-');
+        putchar('-');
+    }
+    printf("+\n");
+    if(size-d+1>=10){
+        printf("%i| ",size-d+1);
+    }else{
+        printf(" %i| ",size-d+1);
+    }
+    for (c=0;c<size*size;c++){
+        switch(gameData->playerID){
+            case 0:
+                if (field[c]==2){
+                    putchar('W');
+                } else if (field[c]==1){
+                    putchar('B');
+                } else {
+                    putchar('*');
+                }
+                break;
+            case 1:
+                if (field[c]==1){
+                    putchar('W');
+                } else if (field[c]==2){
+                    putchar('B');
+                } else {
+                    putchar('*');
+                }
+                break;
+            default:
+                break;
+        }
+        if (c+1==d*size){
+            printf(" |%i\n",size-d+1);
+            d++;
+            //printf(" |\n");
+            if(size-d+1>=10){
+                printf("%i| ",size-d+1);
+            }else if(size-d+1>0){
+                printf(" %i| ",size-d+1);
+            }
+        } else{
+            putchar(' ');
+        }
+    }
