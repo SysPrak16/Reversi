@@ -5,6 +5,19 @@
 #ifndef REVERSI_THINKER_H
 #define REVERSI_THINKER_H
 
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+#include "thinker.h"
+#include "connector.h"
+#include "global.h"
+#include <signal.h>
+
 /*
 	Converts position-ID into string, as spielzug use an empty char[3]
 */

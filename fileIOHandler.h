@@ -16,7 +16,9 @@
  * @returns: -1 on failure, 0 else;
  */
 int readCfg(const char *filename);
-void initconfig();
-FILE* openFile(char *name);
 
+/*
+ * Initialises not currently stored values from default
+ */
+void initconfig();
 #endif //REVERSI_FILEIOHANDLER_H

@@ -1,10 +1,14 @@
 CC 		= gcc
-CFLAGS 		= -Wall -std=c99 -ggdb
+CFLAGS 		= -std=gnu99 -pipe -g
 OBJECTS 	= main.o performConnection.o connector.o thinker.o fileIOHandler.o
-TARGET 		= play
+TARGET 		= reversi
+GAME_ID     = -g 1234567890
 
 all: $(OBJECTS)
 		$(CC) $(OBJECTS) -o $(TARGET)
+
+play: all
+	./$(TARGET) $(GAME_ID)
 
 ####### Compile
 
