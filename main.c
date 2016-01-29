@@ -21,10 +21,11 @@ void initDefault(){
     strcpy(config.hostname,DEF_HOSTNAME);
 }
 
-int main( int argc, char* argv[] )
+int main( int argc, char* argv[])
 {
     opterr=0;
-    int initFlag=-1;
+    int diffFlag,initFlag;
+    diffFlag=initFlag=-1;
 	char *gameID;
     //char gameID[11];
     gameID="ERROR";
@@ -42,7 +43,6 @@ int main( int argc, char* argv[] )
 			case 'c':
                 //DEBUG: printf("%s", tmpCfgFile)
                 strcpy(tmpCfgFile,optarg);
-                //tmpCfgFile=optarg;
                 if (readCfg(tmpCfgFile)>-1){
                     initFlag=1;
                 }
@@ -52,8 +52,8 @@ int main( int argc, char* argv[] )
                 }
                 break;
             case 'd':;
-                //char *AI=optarg;
                 config.aiType=atoi(optarg);
+                diffFlag=1;
                 break;
             default:
                 printf(HOW_TO_USE);
@@ -67,7 +67,6 @@ int main( int argc, char* argv[] )
             printf(ENTER_GAME_ID);
             scanf("%s",buf);
         }while(strlen(buf)!=11);
-        //strcpy(gameID,buf);
         gameID=buf;
         strcpy(config.gameID, gameID);
     }else{
@@ -77,9 +76,13 @@ int main( int argc, char* argv[] )
     printf("\tYour Game-ID: %s\n", config.gameID);
     if(initFlag<0){
         printf("\tNo external configuration provided, initialising from default...\n");
+        printf(HOW_TO_CONFIG);
         initDefault();
     }else{
 	printf("\tReading from provided file (%s) succeded.\n\tInitialising...\n", tmpCfgFile);
+    }
+    if (diffFlag!=1){
+        printf(HOW_TO_AI);
     }
     return think();
 }

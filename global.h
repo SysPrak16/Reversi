@@ -50,6 +50,9 @@
 #define DETATCH_ERROR "ERROR: Could not detach the Shared memory segment!\n"
 
 #define HOW_TO_USE "\n\tThis application expects the following arguments:\n\t\t-g\tGameID retrievable vial creating a new game at \"http://sysprak.priv.lab.nm.ifi.lmu.de/sysprak/\"\n\t\t\tHas to have the length of 11 characters.\n\n\tThis application accepts the following arguments:\n\t\t-c\tYou can provide the name of a configuration file here.\n\t\t\tMaximum allowed amount of characters is 256.\n\t\t-d\tAn integer which determines the game difficulty.\n\t\t\tCurrently ranges from 0-2."
+#define HOW_TO_CONFIG "\n\tTo provide a custom configuration, use the argument -c\n\t\tYou can provide the name of a configuration file here.\n\t\tMaximum allowed amount of characters is 256.\n"
+#define HOW_TO_AI "\n\t Did you know you can adjust the AI by using the -d flag?\n\t\tIt takes integers from 0-2, where 0 is the easiest AI.\n"
+
 #include <sys/types.h>
 #include <sys/ipc.h>
 
@@ -111,7 +114,7 @@ gameData_t *gameData;
 #define AI_ENHANCED_RAND 1
 #define AGAINST_ENH_RAND "\tYou decided to play against a very easy AI.\n"
 #define AI_MAX_GAIN 2
-#define AGAINST_MAX_GAIN "\tYou decided to play against a easy AI.\n"
+#define AGAINST_MAX_GAIN "\tYou decided to play against an easy AI.\n"
 
 
 /*

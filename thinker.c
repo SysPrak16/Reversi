@@ -7,12 +7,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <signal.h>
 #include <time.h>
 #include <string.h>
 #include "thinker.h"
 #include "connector.h"
 #include "global.h"
+#include <signal.h>
 
 extern config_t config;
 
@@ -21,7 +21,6 @@ extern config_t config;
  */
 
 int cleanupGameData(){
-    //DEBUG: printf("Reached: cleanupGameData()\n");
     if(shmctl (gameData->shmid_gameData, IPC_RMID, NULL)<0)
     {
         perror(DETATCH_ERROR);
@@ -30,60 +29,6 @@ int cleanupGameData(){
     printf("\nCleanup in process...\n\tAll memories retconed!\n\tNow exiting...\n(c) 2016-20xx: Torchwood Institute\n");
     return 0;
 }
-
-/*
- * draw field
- */
-/*void drawField(int *field, int size){
-    int c, d;
-    d=1;
-    printf("\n\n\tCURRENT BOARD:\n\n");
-    printf("    ");
-    for (c=0;c<size;c++){
-        putchar('A'+c);
-        putchar(' ');
-    }
-    printf("    \n");
-    if(size-d+1>=10){
-        printf("%i| ",size-d+1);
-    }else{
-        printf(" %i| ",size-d+1);
-    }
-    for (c=0;c<size*size;c++){
-        switch(gameData->playerID){
-            case 0:
-                if (field[c]==2){
-                    putchar('W');
-                } else if (field[c]==1){
-                    putchar('B');
-                } else {
-                    putchar('*');
-                }
-                break;
-            case 1:
-                if (field[c]==1){
-                    putchar('W');
-                } else if (field[c]==2){
-                    putchar('B');
-                } else {
-                    putchar('*');
-                }
-                break;
-        }
-        if (c+1==d*size){
-            d++;
-            printf("\n");
-            if(size-d+1>=10){
-                printf("%i| ",size-d+1);
-            }else if(size-d+1>0){
-                printf(" %i| ",size-d+1);
-            }
-        } else{
-            putchar(' ');
-        }
-    }
-    printf("\n\n");
-}*/
 
 void drawField(int *field, int size) {
     int c, d;
@@ -95,7 +40,7 @@ void drawField(int *field, int size) {
         putchar(' ');
     }
     printf("    \n");
-    //Additional Format
+
     printf("  +-");
     for (c = 0; c < size; c++) {
         putchar('-');
@@ -133,7 +78,6 @@ void drawField(int *field, int size) {
         if (c + 1 == d * size) {
             printf(" |%i\n", size - d + 1);
             d++;
-            //printf(" |\n");
             if (size - d + 1 >= 10) {
                 printf("%i| ", size - d + 1);
             } else if (size - d + 1 > 0) {
@@ -166,7 +110,6 @@ void handler(int parameter) {
     int fieldID;
     if (gameData->thinkerMakeMove==1 && parameter == SIGUSR1) {
         gameData->thinkerMakeMove = -1;
-        //Attach memory:
         if ((fieldID = shmget(FIELD_ID+gameData->playerID*5, sizeof(gfield), 0)) == -1) {
             perror(SHM_ERROR);
         }
@@ -175,32 +118,22 @@ void handler(int parameter) {
             printf("This\n");
             perror(SHM_ERROR);
         }
-        //Draw field:
         drawField(gfield->field, gfield->width);
         char move[5];
         char *sMove;
         int tmpMove;
         tmpMove=gueltigerZug(gfield->field, gfield->width);
-        //DEBUG: printf("Temporärer Zug: %i\n",tmpMove);
         if (tmpMove>=0) {
             sMove = convertMove(move, tmpMove, gfield->width);
-            //DEBUG:
-            //printf("Konvertierter Zug: %s\n", sMove);
-            //memset(move, 0, sizeof(move));
-            //gameData->movesize = sizeof(sMove);
             if ((write(gameData->pipe.write, sMove, gameData->movesize)) !=
-                gameData->movesize) { //In Schreibseite schreiben
-                perror("Fehler bei write().");
+                gameData->movesize) {
+                perror("ERROR: An error occurred during write()");
             }
             gameData->moveOK=1;
-            //write(gameData->pipe.out, sMove, sizeof(sMove));
-            //detach field:
         }
         shmdt(gfield);
     } else if (gameData->thinkerMakeMove<=0 && parameter == SIGUSR1){
-        //DEBUG: printf("Reached: cleanupGameData\n\tID to detach: %i\n", gameData->shmid_gameData);
         if(gameData->thinkerMakeMove<=0) {
-            //perror(FATAL_ERROR);
             cleanupGameData();
         }
 
@@ -209,26 +142,20 @@ void handler(int parameter) {
 
 int think()
 {
-    //creating the shared memory segment:
     int shmid = shmget(IPC_PRIVATE, sizeof(gameData_t), IPC_CREAT | 0666);
     if (shmid == -1) {
-        //printf("This");
         perror(SHM_ERROR);
         return -1;
     }
-    //Actually attaching it:
     gameData = (gameData_t *) shmat(shmid, NULL, 0);
     if (gameData == (gameData_t *) -1) {
-        //printf("This");
         perror(SHM_ERROR);
         return -1;
     }
 
-    //initialise the gameData
     initgameData();
     gameData->shmid_gameData=shmid;
 
-    //create the pipe
     int p[2];
     if (pipe(p) == -1) {
         perror("ERROR: Could not open the pipe!");
@@ -237,38 +164,29 @@ int think()
 
     gameData->pipe.write = p[1];
     gameData->pipe.read = p[0];
-    //forking:
 
     pid_t pid = fork();
     if (pid==-1){
         perror("ERROR: fork()");
         return -1;
     }else if(pid==0){
-        //child:
         gameData->processIDChild=getpid();
-        //close pipe in:
         close(gameData->pipe.write);
-        //connect:
-	if(connectToServer()==0){
-	    if (kill(gameData->processIDParent, SIGUSR1) == -1)	{	//Sendet das Signal SIGUSR1 an den Elternprozess
+	    if(connectToServer()==0){
+	        if (kill(gameData->processIDParent, SIGUSR1) == -1)	{
                 printf("Error sending signal!! SIGUSR1\n");
                 return 0;
             }
-	}else{return 1;}
-        //return connectToServer();
-    } else {
-        //Parent:
+	    }else{
+            return 1;
+        }
+    }else{
         gameData->processIDParent=getpid();
         gameData->thinkerMakeMove=0;
-        //closing pipe out:
         close(gameData->pipe.read);
-
-        //signal
         do{
             signal(SIGUSR1, handler);
         }while(gameData->sig_exit);
-        //int connectorStatus;
-        //waitpid(pid, &connectorStatus, 0);
     }
     return EXIT_SUCCESS;
 }

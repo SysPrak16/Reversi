@@ -5,4 +5,5 @@
 #ifndef REVERSI_MAIN_H
 #define REVERSI_MAIN_H
 
+int main( int argc, char* argv[]);
 #endif //REVERSI_MAIN_H

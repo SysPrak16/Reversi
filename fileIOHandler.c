@@ -11,6 +11,9 @@
 //global variable
 config_t config;
 
+/*
+ * Leaves parameters which could not be read alone
+ */
 void unknownKeyError(char *error){
     fprintf(stderr, "ERROR: Unknown parameter '%s', ignoring it!\n", error);
 }
@@ -18,7 +21,7 @@ void unknownKeyError(char *error){
 int readCfg(const char *filename) {
     /*
      * open configuration file
-     * found in ~/config/client.conf
+     * found in ~/client.conf
      */
     FILE *cfgFile = fopen(filename, "r");
     if (!cfgFile) {
